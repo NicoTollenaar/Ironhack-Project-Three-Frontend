@@ -1,13 +1,14 @@
 import axios from "axios";
+import Button from "react-bootstrap/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
-import ModalContainer from "../components/ModalContainer";
+import MoveFundsModal from "../components/MoveFundsModal";
 import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 
 function UserInterfacePage() {
   const backendUrl = useContext(BackendUrlContext);
-  const [showMoveFundsModal, setShowMoveFundsModal] = useState(false);
+  const [modalShow, setModalShow] = useState(false);
   const { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
@@ -16,11 +17,6 @@ function UserInterfacePage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   let navigate = useNavigate();
-
-  console.log(
-    "In userinterface, logging showMoveFundsModal (boolean):",
-    showMoveFundsModal
-  );
 
   useEffect(() => {
     changeCurrentAccountholder(currentAccountholder);
@@ -72,7 +68,7 @@ function UserInterfacePage() {
 
   return (
     <>
-      <ModalContainer />
+      <MoveFundsModal show={modalShow} onHide={() => setModalShow(false)} />
       <div className="container-fluid">
         <div className="row">
           <div className="col-6">
@@ -148,9 +144,14 @@ function UserInterfacePage() {
               </div>
             </div>
             <div className="button-container d-flex justify-content-start mx-3">
-              <button onClick={() => setShowMoveFundsModal(true)}>
-                Move on-chain
-              </button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (currentAccountholder.firstName) setModalShow(true);
+                }}
+              >
+                Move funds on-chain
+              </Button>
               <button className="mx-4" onClick={() => navigate("/transfer")}>
                 Transfer
               </button>

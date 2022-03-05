@@ -1,93 +1,47 @@
 import axios from "axios";
 import { useState, useContext } from "react";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import ModalForm from "./ModalForm";
 import { useNavigate } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 
-function MoveFundsModal() {
-  const [amount, setAmount] = useState(0);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const backendUrl = useContext(BackendUrlContext);
+function MoveFundsModal(props) {
   const { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
-  let navigate = useNavigate();
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (amount > currentAccountholder.offChainAccount.balance) {
-      setErrorMessage("Sorry - insufficient funds!");
-      return;
-    }
-    try {
-      const requestBody = {
-        fromAccountId: currentAccountholder.offChainAccount._id,
-        transferAmount: amount,
-        recipientAccountType: currentAccountholder.onChainAccount.accountType,
-        recipientAccountAddress: currentAccountholder.onChainAccount.address,
-      };
-      console.log(
-        "In TransferPage, logging requestBody to be provided to Axios as requestBody :",
-        requestBody
-      );
-      const storedToken = localStorage.getItem("authToken");
-
-      if (storedToken) {
-        const response = await axios.post(
-          `${backendUrl}/move-on-chain`,
-          requestBody,
-          {
-            headers: { Authorization: `Bearer ${storedToken}` },
-          }
-        );
-        console.log(
-          "In TransferPage, handlesubmit, logging response from server on axios request (response.data): ",
-          response.data
-        );
-        const updatedAccountholder = {
-          ...currentAccountholder,
-          offChainAccount: response.data.onChainAccount,
-          onChainAccount: response.data.offChainAccount,
-        };
-        changeCurrentAccountholder(updatedAccountholder);
-
-        navigate("/user-interface");
-      } else {
-        setErrorMessage("Unauthorized request (no webtoken found)");
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage(error.response.data.errorMessage);
-    }
-  }
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="input-amount">Amount</label>
-          <input
-            className="form-control"
-            id="input-amount"
-            type="number"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => e.target.value}
-          />
-        </div>
-
-        <div className="form-group">
-          <button className="form-control btn btn-primary btn-sm" type="submit">
-            Submit
-          </button>
-        </div>
-      </form>
-      {errorMessage && (
-        <div className="alert alert-danger" role="alert">
-          {errorMessage}
-        </div>
-      )}
+      <Modal
+        {...props}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Move funds on-chain
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h4 className="my-3">
+            Accountholder {currentAccountholder.firstName}
+          </h4>
+          <h5>From off-chain account:</h5>
+          <p>{currentAccountholder.offChainAccount.address}</p>
+          <br />
+          <h5>To on-chain account:</h5>
+          <p>ETHAddress: {currentAccountholder.onChainAccount.address}</p>
+          <br />
+          <ModalForm />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={props.onHide}>Close</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
