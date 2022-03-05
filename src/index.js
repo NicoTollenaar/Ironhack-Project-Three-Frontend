@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { BackendUrlProviderWrapper } from "./context/backendUrl.context";
+import { CurrentAccountholderProviderWrapper } from "./context/currentAccountholder.context";
 import { AuthProviderWrapper } from "./context/auth.context";
 import { BrowserRouter as Router } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
@@ -10,11 +11,13 @@ import reportWebVitals from "./reportWebVitals";
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <BackendUrlProviderWrapper>
-        <AuthProviderWrapper>
-          <App />
-        </AuthProviderWrapper>
-      </BackendUrlProviderWrapper>
+      <CurrentAccountholderProviderWrapper>
+        <BackendUrlProviderWrapper>
+          <AuthProviderWrapper>
+            <App />
+          </AuthProviderWrapper>
+        </BackendUrlProviderWrapper>
+      </CurrentAccountholderProviderWrapper>
     </Router>
   </React.StrictMode>,
   document.getElementById("root")

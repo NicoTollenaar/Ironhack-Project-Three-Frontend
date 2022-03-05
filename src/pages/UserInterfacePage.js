@@ -1,19 +1,30 @@
 import axios from "axios";
-import { Link, useNavigate, NavLink } from "react-router-dom";
-import { Routes, Route } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
-import { useState, useContext } from "react";
-import IsPrivate from "./../components/IsPrivate";
-import TransferPage from "./TransferPage";
+import ModalContainer from "../components/ModalContainer";
+import { useState, useContext, useEffect } from "react";
+import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 
-function UserInterfacePage(props) {
-  const { accountholder, changeAccountholderState } = props;
+function UserInterfacePage() {
   const backendUrl = useContext(BackendUrlContext);
+  const [showMoveFundsModal, setShowMoveFundsModal] = useState(false);
+  const { currentAccountholder, changeCurrentAccountholder } = useContext(
+    CurrentAccountholderContext
+  );
   const [query, setQuery] = useState();
 
   const [errorMessage, setErrorMessage] = useState("");
 
   let navigate = useNavigate();
+
+  console.log(
+    "In userinterface, logging showMoveFundsModal (boolean):",
+    showMoveFundsModal
+  );
+
+  useEffect(() => {
+    changeCurrentAccountholder(currentAccountholder);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -40,7 +51,11 @@ function UserInterfacePage(props) {
           "In userInterface, handlesubmit, logging response from server on axios request (response.data): ",
           response.data
         );
-        changeAccountholderState(response.data);
+        changeCurrentAccountholder(response.data);
+        console.log(
+          "In userinfterfacepage, logging currentAccountholder (from context) :",
+          currentAccountholder
+        );
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
       }
@@ -51,19 +66,13 @@ function UserInterfacePage(props) {
   }
 
   console.log(
-    "In userinterfact, logging accoutholder after update :",
-    accountholder
+    "In userinterfact, logging currentAccoutholder after update :",
+    currentAccountholder
   );
-
-  async function transferFromOffChain() {
-    try {
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   return (
     <>
+      <ModalContainer />
       <div className="container-fluid">
         <div className="row">
           <div className="col-6">
@@ -89,7 +98,7 @@ function UserInterfacePage(props) {
               <div className="card-body d-flex flex-column align-items-start">
                 <div className="d-flex flex-column align-items-start">
                   <h5 className="text-align-start">
-                    {accountholder.firstName}
+                    {currentAccountholder.firstName}
                   </h5>
                   <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
                     <h6 className="">
@@ -98,8 +107,8 @@ function UserInterfacePage(props) {
                     <h6>
                       <b>
                         EUR:{" "}
-                        {accountholder.onChainAccount.balance +
-                          accountholder.offChainAccount.balance}
+                        {currentAccountholder.onChainAccount.balance +
+                          currentAccountholder.offChainAccount.balance}
                       </b>
                     </h6>
                   </div>
@@ -124,22 +133,24 @@ function UserInterfacePage(props) {
           <div className="col-6">
             <div className="card m-3">
               <div className="card-body d-flex flex-column align-items-start w-75">
-                <h6 className="d-flex w-100">
-                  {accountholder.offChainAccount.address}
-                </h6>
+                <p className="d-flex w-100">
+                  {currentAccountholder.offChainAccount.address}
+                </p>
                 <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
                   <h6>
                     <b>Balance: </b>
                   </h6>
                   <h6>
-                    <b>EUR: {accountholder.offChainAccount.balance}</b>
+                    <b>EUR: {currentAccountholder.offChainAccount.balance}</b>
                   </h6>
                 </div>
                 <Link to="/transactions">Transaction history</Link>
               </div>
             </div>
             <div className="button-container d-flex justify-content-start mx-3">
-              <button>Move on-chain</button>
+              <button onClick={() => setShowMoveFundsModal(true)}>
+                Move on-chain
+              </button>
               <button className="mx-4" onClick={() => navigate("/transfer")}>
                 Transfer
               </button>
@@ -148,15 +159,15 @@ function UserInterfacePage(props) {
           <div className="col-6">
             <div className="card m-3">
               <div className="card-body d-flex flex-column align-items-start w-75">
-                <h6 className="d-flex w-100">
-                  {accountholder.onChainAccount.address}
-                </h6>
+                <p className="d-flex w-100">
+                  {currentAccountholder.onChainAccount.address}
+                </p>
                 <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
                   <h6 className="">
                     <b>Balance: </b>
                   </h6>
                   <h6>
-                    <b>EUR: {accountholder.onChainAccount.balanceon}</b>
+                    <b>EUR: {currentAccountholder.onChainAccount.balance}</b>
                   </h6>
                 </div>
                 <Link to="/transactions">Transaction history</Link>

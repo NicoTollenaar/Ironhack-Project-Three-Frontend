@@ -2,10 +2,13 @@ import axios from "axios";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
+import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 
-function TransferPage({ accountholder, changeAccountholderState }) {
-  console.log("In TransferPage, logging accountholder (prop): ", accountholder);
+function TransferPage() {
   let backendUrl = useContext(BackendUrlContext);
+  let { currentAccountholder, changeCurrentAccountholder } = useContext(
+    CurrentAccountholderContext
+  );
   const [accountType, setAccountType] = useState("");
   const [amount, setAmount] = useState(0);
   const [address, setAddress] = useState("");
@@ -14,16 +17,20 @@ function TransferPage({ accountholder, changeAccountholderState }) {
   let navigate = useNavigate();
 
   console.log(
-    "On TransferPage, logging accountholder (props) :",
-    accountholder,
-    changeAccountholderState
+    "On TransferPage, logging currentAccountholder (context) :",
+    currentAccountholder,
+    changeCurrentAccountholder
   );
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (amount > currentAccountholder.offChainAccount.balance) {
+      setErrorMessage("Sorry - insufficient funds!");
+      return;
+    }
     try {
       const requestBody = {
-        fromAccountId: accountholder.offChainAccount._id,
+        fromAccountId: currentAccountholder.offChainAccount._id,
         transferAmount: amount,
         recipientAccountType: accountType,
         recipientAccountAddress: address,
@@ -33,10 +40,7 @@ function TransferPage({ accountholder, changeAccountholderState }) {
         requestBody
       );
       const storedToken = localStorage.getItem("authToken");
-      console.log(
-        "In TransferPage, handle submit, logging retrieved from localstorage: ",
-        storedToken
-      );
+
       if (storedToken) {
         const response = await axios.post(
           `${backendUrl}/transfer`,
@@ -49,21 +53,13 @@ function TransferPage({ accountholder, changeAccountholderState }) {
           "In TransferPage, handlesubmit, logging response from server on axios request (response.data): ",
           response.data
         );
-        changeAccountholderState({
-          _id: "",
-          firstName: "",
-          lastName: "",
-          offChainAccount: {
-            accountType: "off-chain",
-            address: "",
-            balance: 0,
-          },
-          onChainAccount: {
-            accountType: "off-chain",
-            address: "",
-            balance: 0,
-          },
-        });
+        const updatedAccountholder = {
+          ...currentAccountholder,
+          offChainAccount: response.data,
+        };
+        changeCurrentAccountholder(updatedAccountholder);
+
+        navigate("/user-interface");
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
       }
@@ -71,6 +67,10 @@ function TransferPage({ accountholder, changeAccountholderState }) {
       console.log(error);
       setErrorMessage(error.response.data.errorMessage);
     }
+  }
+
+  function handleCancel() {
+    setErrorMessage("");
     navigate("/user-interface");
   }
 
@@ -90,15 +90,17 @@ function TransferPage({ accountholder, changeAccountholderState }) {
           <form className="form" onSubmit={handleSubmit}>
             <div className="card">
               <h5 className="d-flex mx-3 my-3 mt-3">
-                {accountholder.firstName}{" "}
-                {accountholder.lastName && accountholder.lastName}{" "}
+                {currentAccountholder.firstName}{" "}
+                {currentAccountholder.lastName && currentAccountholder.lastName}{" "}
               </h5>
               <div className="from-wrapper d-flex mx-3 my-3">
                 <h6>From account:</h6>
                 <h6 className="mx-5">
-                  {accountholder.offChainAccount.address}
+                  {currentAccountholder.offChainAccount.address}
                 </h6>
-                <h6>({accountholder.offChainAccount.accountType} account)</h6>
+                <h6>
+                  ({currentAccountholder.offChainAccount.accountType} account)
+                </h6>
               </div>
               <div className="to-wrapper w-100 d-flex my-2">
                 <h6 className="mx-3 me-4">To: </h6>
@@ -133,6 +135,13 @@ function TransferPage({ accountholder, changeAccountholderState }) {
             <div className="d-flex my-3">
               <button type="submit" className="btn btn-secondary">
                 Confirm
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary mx-5"
+                onClick={handleCancel}
+              >
+                Cancel
               </button>
             </div>
           </form>

@@ -14,26 +14,6 @@ import IsPrivate from "./components/IsPrivate";
 import IsAnon from "./components/IsAnon";
 
 function App() {
-  const [accountholder, setAccountholder] = useState({
-    _id: "",
-    firstName: "",
-    lastName: "",
-    offChainAccount: {
-      accountType: "off-chain",
-      address: "",
-      balance: 0,
-    },
-    onChainAccount: {
-      accountType: "off-chain",
-      address: "",
-      balance: 0,
-    },
-  });
-
-  function changeAccountholderState(newState) {
-    setAccountholder(newState);
-  }
-
   return (
     <div className="App">
       <Navbar />
@@ -68,10 +48,7 @@ function App() {
           path="/user-interface"
           element={
             <IsPrivate>
-              <UserInterfacePage
-                accountholder={accountholder}
-                changeAccountholderState={changeAccountholderState}
-              />
+              <UserInterfacePage />
             </IsPrivate>
           }
         />
@@ -79,10 +56,7 @@ function App() {
           path="/transfer"
           element={
             <IsPrivate>
-              <TransferPage
-                accountholder={accountholder}
-                changeAccountholderState={changeAccountholderState}
-              />
+              <TransferPage />
             </IsPrivate>
           }
         />
