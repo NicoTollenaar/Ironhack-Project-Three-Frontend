@@ -13,6 +13,10 @@ function MoveFundsModal(props) {
     CurrentAccountholderContext
   );
 
+  function closeModal() {
+    props.onHide();
+  }
+
   return (
     <>
       <Modal
@@ -23,20 +27,40 @@ function MoveFundsModal(props) {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            Move funds on-chain
+            Move funds {props.moveFundsDirection}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <h4 className="my-3">
             Accountholder {currentAccountholder.firstName}
           </h4>
-          <h5>From off-chain account:</h5>
-          <p>{currentAccountholder.offChainAccount.address}</p>
+          <h5>
+            From{" "}
+            {props.moveFundsDirection === "on-chain" ? "off-chain" : "on-chain"}{" "}
+            account:
+          </h5>
+          {props.moveFundsDirection === "on-chain" ? (
+            <p>{currentAccountholder.offChainAccount.address}</p>
+          ) : (
+            <p>ETH Address: {currentAccountholder.onChainAccount.address}</p>
+          )}
+
           <br />
-          <h5>To on-chain account:</h5>
-          <p>ETHAddress: {currentAccountholder.onChainAccount.address}</p>
+          <h5>
+            To:{" "}
+            {props.moveFundsDirection === "on-chain" ? "on-chain" : "off-chain"}{" "}
+            account:
+          </h5>
+          {props.moveFundsDirection === "on-chain" ? (
+            <p>ETH Address: {currentAccountholder.onChainAccount.address}</p>
+          ) : (
+            <p>{currentAccountholder.offChainAccount.address}</p>
+          )}
           <br />
-          <ModalForm />
+          <ModalForm
+            closeModal={closeModal}
+            moveFundsDirection={props.moveFundsDirection}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={props.onHide}>Close</Button>

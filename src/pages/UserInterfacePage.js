@@ -9,6 +9,7 @@ import { CurrentAccountholderContext } from "../context/currentAccountholder.con
 function UserInterfacePage() {
   const backendUrl = useContext(BackendUrlContext);
   const [modalShow, setModalShow] = useState(false);
+  const [moveFundsDirection, setMoveFundsDirection] = useState("");
   const { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
@@ -68,7 +69,11 @@ function UserInterfacePage() {
 
   return (
     <>
-      <MoveFundsModal show={modalShow} onHide={() => setModalShow(false)} />
+      <MoveFundsModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        moveFundsDirection={moveFundsDirection}
+      />
       <div className="container-fluid">
         <div className="row">
           <div className="col-6">
@@ -93,9 +98,9 @@ function UserInterfacePage() {
             <div className="m-3">
               <div className="card-body d-flex flex-column align-items-start">
                 <div className="d-flex flex-column align-items-start">
-                  <h5 className="text-align-start">
-                    {currentAccountholder.firstName}
-                  </h5>
+                  <h4 className="text-align-start">
+                    Accountholder {currentAccountholder.firstName}
+                  </h4>
                   <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
                     <h6 className="">
                       <b>Total Balance: </b>
@@ -147,7 +152,10 @@ function UserInterfacePage() {
               <Button
                 variant="primary"
                 onClick={() => {
-                  if (currentAccountholder.firstName) setModalShow(true);
+                  if (currentAccountholder.firstName) {
+                    setMoveFundsDirection("on-chain");
+                    setModalShow(true);
+                  }
                 }}
               >
                 Move funds on-chain
@@ -175,7 +183,17 @@ function UserInterfacePage() {
               </div>
             </div>
             <div className="button-container d-flex justify-content-start mx-3">
-              <button>Move off-chain</button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (currentAccountholder.firstName) {
+                    setMoveFundsDirection("off-chain");
+                    setModalShow(true);
+                  }
+                }}
+              >
+                Move funds off-chain
+              </Button>
               <button className="mx-4">Transfer</button>
             </div>
           </div>

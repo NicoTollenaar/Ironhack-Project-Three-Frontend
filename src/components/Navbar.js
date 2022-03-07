@@ -37,7 +37,9 @@ function Navbar() {
             )}
           </div>
           <div className="currentAccountholder-wrapper">
-            {currentAccountholder && <h6>Current Accountholder is {currentAccountholder.firstName}</h6>}
+            {currentAccountholder && (
+              <h5>Accountholder {currentAccountholder.firstName}</h5>
+            )}
           </div>
         </div>
       </nav>
