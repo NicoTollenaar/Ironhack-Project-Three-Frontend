@@ -28,28 +28,6 @@ function ModalForm(props) {
     CurrentAccountholderContext
   );
 
-  // async function getArtifactsAndContractAddress() {
-  //   try {
-  //     const responseArtifacts = await fetch(
-  //       "./../blockchainSources/artifacts/ChainAccount.json"
-  //     );
-  //     artifacts = await responseArtifacts.json();
-
-  //     const responseContractAddress = await fetch(
-  //       "./../blockchainSources/config.json"
-  //     );
-  //     chainAccountContractAddress = await responseContractAddress.json();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-  // useEffect(() => {
-  //   getArtifactsAndContractAddress().then(() => {
-  //     console.log("chainAccountContractAddress: ", chainAccountContractAddress);
-  //     console.log("artifacts: ", artifacts);
-  //   });
-  // }, []);
-
   useEffect(() => {
     if (typeof window.ethereum !== undefined) {
       window.ethereum.on("accountsChanged", (accounts) => {

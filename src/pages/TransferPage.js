@@ -5,6 +5,8 @@ import { BackendUrlContext } from "../context/backendUrl.context";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 import { ethers } from "ethers";
 import artifacts from "./../blockchainSources/artifacts/ChainAccountArtifacts";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 const ETHAddressBank = "0x03F04fDa3B6E6FA1783A5EDB810155e5F4dD5461";
 const chainAccountContractAddress =
   "0x471184AE3a9632a3a65d846f961b3a4b8A9e416A";
@@ -30,35 +32,113 @@ function TransferPage() {
 
   let navigate = useNavigate();
 
-  console.log(
-    "On TransferPage, logging currentAccountholder (context) :",
-    currentAccountholder,
-    changeCurrentAccountholder
-  );
+  useEffect(() => {
+    if (typeof window.ethereum !== undefined) {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        console.log("Account changed: ", accounts[0]);
+        setUserMetaMaskWallet(accounts[0]);
+      });
+      window.ethereum.on("chainChanged", (chaindId) => {
+        console.log("Chain ID changed: ", chaindId);
+        setCurrentChain(chaindId);
+      });
+    } else {
+      alert("Please install MetaMask to use this app!");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (fromAccountType === "on-chain") {
+      connectUserMetaMaskAccount()
+        .then(() =>
+          console.log(
+            "userMetaMaskWallet, isConnected :",
+            userMetaMaskWallet,
+            isMetaMaskConnected
+          )
+        )
+        .catch((err) => console.log(err));
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsMetaMaskConnected(userMetaMaskWallet ? true : false);
+  }, [userMetaMaskWallet]);
+
+  async function connectUserMetaMaskAccount() {
+    const accounts = await window.ethereum
+      .request({
+        method: "wallet_requestPermissions",
+        params: [
+          {
+            eth_accounts: {},
+          },
+        ],
+      })
+      .then(() => window.ethereum.request({ method: "eth_requestAccounts" }));
+    setUserMetaMaskWallet(accounts[0]);
+    setIsMetaMaskConnected(true);
+  }
+
+  async function handleDisconnect() {
+    setIsMetaMaskConnected(false);
+    setUserMetaMaskWallet("");
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
+    let fromAccount,
+      fromAccountId,
+      newBalanceRecipientFrontend,
+      newBalanceTransferorFrontend,
+      propertyToUpdate,
+      endpoint;
+    switch (fromAccountType) {
+      case "on-chain":
+        fromAccount = currentAccountholder.onChainAccount;
+        fromAccountId = currentAccountholder.onChainAccount._id;
+        endpoint = "from-on-chain-account";
+        propertyToUpdate = "onChainAccount";
+        break;
+      case "off-chain":
+        fromAccount = currentAccountholder.offChainAccount;
+        fromAccountId = currentAccountholder.offChainAccount._id;
+        propertyToUpdate = "offChainAccount";
+        endpoint = "from-off-chain-account";
+        break;
+      default:
+        throw new Error("From account type must be specified");
+    }
 
-    if (amount > currentAccountholder.offChainAccount.balance) {
+    if (amount > fromAccount.balance) {
       setErrorMessage("Sorry - insufficient funds!");
       return;
     }
+
+    const requestBody = {
+      fromAccountId,
+      transferAmount: amount,
+      recipientAccountType: accountType,
+      recipientAccountAddress: address,
+    };
     try {
-      const requestBody = {
-        fromAccountId: currentAccountholder.offChainAccount._id,
-        transferAmount: amount,
-        recipientAccountType: accountType,
-        recipientAccountAddress: address,
-      };
+      if (fromAccountType === "on-chain") {
+        const result = await transferFromOnChainAccount();
+        requestBody.newBalanceRecipientFrontend =
+          result.newBalanceRecipientFrontend;
+        requestBody.newBalanceTransferorFrontend =
+          result.newBalanceTransferorFrontend;
+      }
+
       console.log(
         "In TransferPage, logging requestBody to be provided to Axios as requestBody :",
         requestBody
       );
-      const storedToken = localStorage.getItem("authToken");
 
+      const storedToken = localStorage.getItem("authToken");
       if (storedToken) {
         const response = await axios.post(
-          `${backendUrl}/transfer`,
+          `${backendUrl}/transfer/${endpoint}`,
           requestBody,
           {
             headers: { Authorization: `Bearer ${storedToken}` },
@@ -70,10 +150,13 @@ function TransferPage() {
         );
         const updatedAccountholder = {
           ...currentAccountholder,
-          offChainAccount: response.data,
+          [`${propertyToUpdate}`]: response.data,
         };
+        console.log(
+          "In transfer page, logging updated accountholder: ",
+          updatedAccountholder
+        );
         changeCurrentAccountholder(updatedAccountholder);
-
         navigate("/user-interface");
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
@@ -84,9 +167,95 @@ function TransferPage() {
     }
   }
 
-  async function transferFromOffChainAccount(storedToken) {}
+  async function transferFromOnChainAccount() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const chainAccountContract = new ethers.Contract(
+      chainAccountContractAddress,
+      artifacts.abi,
+      provider
+    );
+    const amountInCents = amount * 10 ** DECIMALS;
+    const recipientAddress =
+      accountType === "off-chain" ? ETHAddressBank : address;
 
-  async function transferFromOnChainAccount(storedToken) {}
+    console.log(
+      "In transferpage, transferFromOnCHainAccount function, logging:"
+    );
+    console.log("ChainAccountContract: ", chainAccountContract);
+    console.log("recipientAddress: ", recipientAddress);
+    console.log("address: ", address);
+
+    const tx = await chainAccountContract
+      .connect(signer)
+      .transfer(recipientAddress, amountInCents);
+    await tx.wait();
+
+    const newBalanceTransferorFrontendHexInCents =
+      await chainAccountContract.balanceOf(
+        currentAccountholder.onChainAccount.address
+      );
+
+    const newBalanceTransferorFrontend =
+      newBalanceTransferorFrontendHexInCents.toString() / 10 ** DECIMALS;
+
+    let newBalanceRecipientFrontend;
+
+    if (accountType === "on-chain") {
+      const newBalanceRecipientFrontendHexInCents =
+        await chainAccountContract.balanceOf(address);
+      newBalanceRecipientFrontend =
+        newBalanceRecipientFrontendHexInCents.toString() / 10 ** DECIMALS;
+    } else {
+      newBalanceRecipientFrontend = null;
+    }
+    return { newBalanceTransferorFrontend, newBalanceRecipientFrontend };
+  }
+
+  // async function transferFromOffChainAccount(storedToken) {
+  //   if (amount > currentAccountholder.offChainAccount.balance) {
+  //     setErrorMessage("Sorry - insufficient funds!");
+  //     return;
+  //   }
+  //   try {
+  //     const requestBody = {
+  //       fromAccountId: currentAccountholder.offChainAccount._id,
+  //       transferAmount: amount,
+  //       recipientAccountType: accountType,
+  //       recipientAccountAddress: address,
+  //     };
+  //     console.log(
+  //       "In TransferPage, logging requestBody to be provided to Axios as requestBody :",
+  //       requestBody
+  //     );
+
+  //     if (storedToken) {
+  //       const response = await axios.post(
+  //         `${backendUrl}/transfer`,
+  //         requestBody,
+  //         {
+  //           headers: { Authorization: `Bearer ${storedToken}` },
+  //         }
+  //       );
+  //       console.log(
+  //         "In TransferPage, handlesubmit, logging response from server on axios request (response.data): ",
+  //         response.data
+  //       );
+  //       const updatedAccountholder = {
+  //         ...currentAccountholder,
+  //         offChainAccount: response.data,
+  //       };
+  //       changeCurrentAccountholder(updatedAccountholder);
+
+  //       navigate("/user-interface");
+  //     } else {
+  //       setErrorMessage("Unauthorized request (no webtoken found)");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     setErrorMessage(error.response.data.errorMessage);
+  //   }
+  // }
 
   function handleCancel() {
     setErrorMessage("");
@@ -132,6 +301,7 @@ function TransferPage() {
                   className="form-select form-select-sm w-25"
                   defaultValue={accountType}
                   onChange={(e) => setAccountType(e.target.value)}
+                  required
                 >
                   <option selected>Account Type</option>
                   <option value="on-chain">on-chain</option>
@@ -143,6 +313,7 @@ function TransferPage() {
                   placeholder="Account number or ETH address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
+                  required
                 />
               </div>
               <div className="amount-wrapper d-flex ms-3 my-5">
@@ -153,6 +324,7 @@ function TransferPage() {
                   placeholder="Amount"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -175,9 +347,28 @@ function TransferPage() {
       <div className="row">
         <div className="col-2"></div>
         <div className="col-8 m-5">
+          {isMetaMaskConnected && (
+            <>
+              <Alert variant={"info"}>MetaMask is connected</Alert>
+              <br />
+              <Button variant="info" onClick={handleDisconnect}>
+                Disconnect
+              </Button>{" "}
+            </>
+          )}
           {errorMessage && (
-            <div className="alert alert-danger" role="alert">
+            <div className="alert alert-danger m-5 text-center" role="alert">
               {errorMessage}
+            </div>
+          )}
+          {pendingMessage && (
+            <div className="alert alert-warning m-5 text-center" role="alert">
+              {pendingMessage}
+            </div>
+          )}
+          {successMessage && (
+            <div className="alert alert-success m-5 text-center" role="alert">
+              {successMessage}
             </div>
           )}
         </div>

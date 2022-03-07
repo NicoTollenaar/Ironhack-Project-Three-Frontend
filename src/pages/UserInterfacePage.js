@@ -27,15 +27,7 @@ function UserInterfacePage() {
     e.preventDefault();
     try {
       const requestBody = { query };
-      console.log(
-        "In loginPage, logging query to be provided to Axios as requestBody :",
-        query
-      );
       const storedToken = localStorage.getItem("authToken");
-      console.log(
-        "In LoginPage, handle submit, logging retrieved from localstorage: ",
-        storedToken
-      );
       if (storedToken) {
         const response = await axios.post(
           `${backendUrl}/accounts`,
@@ -44,13 +36,10 @@ function UserInterfacePage() {
             headers: { Authorization: `Bearer ${storedToken}` },
           }
         );
-        console.log(
-          "In userInterface, handlesubmit, logging response from server on axios request (response.data): ",
-          response.data
-        );
+
         changeCurrentAccountholder(response.data);
         console.log(
-          "In userinfterfacepage, logging currentAccountholder (from context) :",
+          "In userinterfacepage, logging currentAccountholder (after update) :",
           currentAccountholder
         );
       } else {

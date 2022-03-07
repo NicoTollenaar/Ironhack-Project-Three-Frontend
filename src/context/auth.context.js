@@ -18,10 +18,6 @@ function AuthProviderWrapper(props) {
   const authenticateUser = () => {
     // Get the stored token from the localStorage
     const storedToken = localStorage.getItem("authToken");
-    console.log(
-      "In authenticateUser (frontend Authcontext), logging storedToken retrieved from localstorage just before axios post to authenticate/verify route :",
-      storedToken
-    );
 
     // If the token exists in the localStorage
     if (storedToken) {
@@ -33,10 +29,7 @@ function AuthProviderWrapper(props) {
         .then((response) => {
           // If the server verifies that JWT token is valid
           const user = response.data;
-          console.log(
-            "Still in authenticateUser, logging response from server after axios post (response.data) :",
-            response.data
-          );
+
           // Update state variables
           setIsLoggedIn(true);
           setIsLoading(false);
