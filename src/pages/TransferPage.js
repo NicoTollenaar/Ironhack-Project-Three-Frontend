@@ -1,18 +1,32 @@
 import axios from "axios";
-import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
+import { ethers } from "ethers";
+import artifacts from "./../blockchainSources/artifacts/ChainAccountArtifacts";
+const ETHAddressBank = "0x03F04fDa3B6E6FA1783A5EDB810155e5F4dD5461";
+const chainAccountContractAddress =
+  "0x471184AE3a9632a3a65d846f961b3a4b8A9e416A";
+const DECIMALS = 2;
 
 function TransferPage() {
   let backendUrl = useContext(BackendUrlContext);
   let { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
+  const { fromAccountType } = useParams();
   const [accountType, setAccountType] = useState("");
   const [amount, setAmount] = useState(0);
   const [address, setAddress] = useState("");
+
+  const [currentChain, setCurrentChain] = useState("");
+  const [userMetaMaskWallet, setUserMetaMaskWallet] = useState("");
+  const [isMetaMaskConnected, setIsMetaMaskConnected] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState("");
+  const [pendingMessage, setPendingMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   let navigate = useNavigate();
 
@@ -24,6 +38,7 @@ function TransferPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     if (amount > currentAccountholder.offChainAccount.balance) {
       setErrorMessage("Sorry - insufficient funds!");
       return;
@@ -69,6 +84,10 @@ function TransferPage() {
     }
   }
 
+  async function transferFromOffChainAccount(storedToken) {}
+
+  async function transferFromOnChainAccount(storedToken) {}
+
   function handleCancel() {
     setErrorMessage("");
     navigate("/user-interface");
@@ -89,18 +108,23 @@ function TransferPage() {
         <div className="col-8">
           <form className="form" onSubmit={handleSubmit}>
             <div className="card">
-              <h5 className="d-flex mx-3 my-3 mt-3">
-                {currentAccountholder.firstName}{" "}
+              <h4 className="d-flex mx-3 mt-2">From:</h4>
+              <h5 className="d-flex mx-3 mb-3 mt-2">
+                Accountholder {currentAccountholder.firstName}{" "}
                 {currentAccountholder.lastName && currentAccountholder.lastName}{" "}
               </h5>
-              <div className="from-wrapper d-flex mx-3 my-3">
-                <h6>From account:</h6>
-                <h6 className="mx-5">
-                  {currentAccountholder.offChainAccount.address}
+              <div className="from-wrapper d-flex mx-3 mt-1 mb-3">
+                <h6 className="text-capitalize">
+                  {fromAccountType === "off-chain"
+                    ? currentAccountholder.offChainAccount.accountType
+                    : currentAccountholder.onChainAccount.accountType}{" "}
+                  account:
                 </h6>
-                <h6>
-                  ({currentAccountholder.offChainAccount.accountType} account)
-                </h6>
+                <p className="mx-3">
+                  {fromAccountType === "off-chain"
+                    ? currentAccountholder.offChainAccount.address
+                    : currentAccountholder.onChainAccount.address}
+                </p>
               </div>
               <div className="to-wrapper w-100 d-flex my-2">
                 <h6 className="mx-3 me-4">To: </h6>
@@ -110,8 +134,8 @@ function TransferPage() {
                   onChange={(e) => setAccountType(e.target.value)}
                 >
                   <option selected>Account Type</option>
-                  <option value="on-chain">On-chain</option>
-                  <option value="off-chain">Off-chain</option>
+                  <option value="on-chain">on-chain</option>
+                  <option value="off-chain">off-chain</option>
                 </select>
                 <input
                   className="form-control form-control-sm w-100 ms-4"

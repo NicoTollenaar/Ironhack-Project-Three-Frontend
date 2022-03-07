@@ -53,7 +53,7 @@ function App() {
           }
         />
         <Route
-          path="/transfer"
+          path="/transfer/:fromAccountType"
           element={
             <IsPrivate>
               <TransferPage />

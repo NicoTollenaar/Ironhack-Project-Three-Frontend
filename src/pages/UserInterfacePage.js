@@ -62,11 +62,6 @@ function UserInterfacePage() {
     }
   }
 
-  console.log(
-    "In userinterfact, logging currentAccoutholder after update :",
-    currentAccountholder
-  );
-
   return (
     <>
       <MoveFundsModal
@@ -160,7 +155,10 @@ function UserInterfacePage() {
               >
                 Move funds on-chain
               </Button>
-              <button className="mx-4" onClick={() => navigate("/transfer")}>
+              <button
+                className="mx-4"
+                onClick={() => navigate("/transfer/off-chain")}
+              >
                 Transfer
               </button>
             </div>
@@ -194,7 +192,12 @@ function UserInterfacePage() {
               >
                 Move funds off-chain
               </Button>
-              <button className="mx-4">Transfer</button>
+              <button
+                className="mx-4"
+                onClick={() => navigate("/transfer/on-chain")}
+              >
+                Transfer
+              </button>
             </div>
           </div>
         </div>
