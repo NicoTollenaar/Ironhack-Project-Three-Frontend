@@ -300,7 +300,7 @@ function TransferPage() {
             <>
               <Alert variant={"info"}>MetaMask is connected</Alert>
               <br />
-              <Button variant="info" onClick={handleDisconnect}>
+              <Button variant="warning" onClick={handleDisconnect}>
                 Disconnect
               </Button>{" "}
             </>
