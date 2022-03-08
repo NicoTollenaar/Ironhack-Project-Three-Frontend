@@ -273,9 +273,11 @@ function ModalForm(props) {
       </Form>
       {isMetaMaskConnected && (
         <>
-          <Alert variant={"info"}>MetaMask is connected</Alert>
+          <Alert className="mt-4 mb-0" variant={"info"}>
+            MetaMask is connected
+          </Alert>
           <br />
-          <Button variant="info" onClick={handleDisconnect}>
+          <Button variant="warning" onClick={handleDisconnect}>
             Disconnect
           </Button>{" "}
         </>

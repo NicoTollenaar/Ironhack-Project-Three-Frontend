@@ -48,17 +48,15 @@ function TransferPage() {
   }, []);
 
   useEffect(() => {
-    if (fromAccountType === "on-chain") {
-      connectUserMetaMaskAccount()
-        .then(() =>
-          console.log(
-            "userMetaMaskWallet, isConnected :",
-            userMetaMaskWallet,
-            isMetaMaskConnected
-          )
+    connectUserMetaMaskAccount()
+      .then(() =>
+        console.log(
+          "userMetaMaskWallet, isConnected :",
+          userMetaMaskWallet,
+          isMetaMaskConnected
         )
-        .catch((err) => console.log(err));
-    }
+      )
+      .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
@@ -83,10 +81,14 @@ function TransferPage() {
   async function handleDisconnect() {
     setIsMetaMaskConnected(false);
     setUserMetaMaskWallet("");
+    setErrorMessage("");
+    navigate("/user-interface");
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (fromAccountType === "off-chain" && accountType === "on-chain")
+      setPendingMessage("Transaction being mined, please wait ...");
     let fromAccount,
       fromAccountId,
       newBalanceRecipientFrontend,
@@ -107,6 +109,7 @@ function TransferPage() {
         endpoint = "from-off-chain-account";
         break;
       default:
+        setErrorMessage("From account type must be specified");
         throw new Error("From account type must be specified");
     }
 
@@ -123,17 +126,11 @@ function TransferPage() {
     };
     try {
       if (fromAccountType === "on-chain") {
-        const result = await transferFromOnChainAccount();
-        requestBody.newBalanceRecipientFrontend =
-          result.newBalanceRecipientFrontend;
-        requestBody.newBalanceTransferorFrontend =
-          result.newBalanceTransferorFrontend;
+        ({ newBalanceTransferorFrontend, newBalanceRecipientFrontend } =
+          await transferFromOnChainAccount());
+        requestBody.newBalanceRecipientFrontend = newBalanceRecipientFrontend;
+        requestBody.newBalanceTransferorFrontend = newBalanceTransferorFrontend;
       }
-
-      console.log(
-        "In TransferPage, logging requestBody to be provided to Axios as requestBody :",
-        requestBody
-      );
 
       const storedToken = localStorage.getItem("authToken");
       if (storedToken) {
@@ -144,22 +141,20 @@ function TransferPage() {
             headers: { Authorization: `Bearer ${storedToken}` },
           }
         );
-        console.log(
-          "In TransferPage, handlesubmit, logging response from server on axios request (response.data): ",
-          response.data
-        );
         const updatedAccountholder = {
           ...currentAccountholder,
           [`${propertyToUpdate}`]: response.data,
         };
-        console.log(
-          "In transfer page, logging updated accountholder: ",
-          updatedAccountholder
-        );
         changeCurrentAccountholder(updatedAccountholder);
-        navigate("/user-interface");
+        setPendingMessage("");
+        setErrorMessage("");
+        setSuccessMessage("Blockchain transaction successful!");
+        setTimeout(() => {
+          navigate("/user-interface");
+        }, 2000);
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
+        throw new Error("Unauthorized request (no webtoken found)");
       }
     } catch (error) {
       console.log(error);
@@ -179,17 +174,16 @@ function TransferPage() {
     const recipientAddress =
       accountType === "off-chain" ? ETHAddressBank : address;
 
-    console.log(
-      "In transferpage, transferFromOnCHainAccount function, logging:"
-    );
-    console.log("ChainAccountContract: ", chainAccountContract);
-    console.log("recipientAddress: ", recipientAddress);
-    console.log("address: ", address);
-
     const tx = await chainAccountContract
       .connect(signer)
       .transfer(recipientAddress, amountInCents);
+    setPendingMessage("Transaction is being mined, please wait ...");
     await tx.wait();
+
+    if (tx) {
+      setPendingMessage("");
+      setSuccessMessage("Blockchain transaction succesful!");
+    }
 
     const newBalanceTransferorFrontendHexInCents =
       await chainAccountContract.balanceOf(
@@ -211,51 +205,6 @@ function TransferPage() {
     }
     return { newBalanceTransferorFrontend, newBalanceRecipientFrontend };
   }
-
-  // async function transferFromOffChainAccount(storedToken) {
-  //   if (amount > currentAccountholder.offChainAccount.balance) {
-  //     setErrorMessage("Sorry - insufficient funds!");
-  //     return;
-  //   }
-  //   try {
-  //     const requestBody = {
-  //       fromAccountId: currentAccountholder.offChainAccount._id,
-  //       transferAmount: amount,
-  //       recipientAccountType: accountType,
-  //       recipientAccountAddress: address,
-  //     };
-  //     console.log(
-  //       "In TransferPage, logging requestBody to be provided to Axios as requestBody :",
-  //       requestBody
-  //     );
-
-  //     if (storedToken) {
-  //       const response = await axios.post(
-  //         `${backendUrl}/transfer`,
-  //         requestBody,
-  //         {
-  //           headers: { Authorization: `Bearer ${storedToken}` },
-  //         }
-  //       );
-  //       console.log(
-  //         "In TransferPage, handlesubmit, logging response from server on axios request (response.data): ",
-  //         response.data
-  //       );
-  //       const updatedAccountholder = {
-  //         ...currentAccountholder,
-  //         offChainAccount: response.data,
-  //       };
-  //       changeCurrentAccountholder(updatedAccountholder);
-
-  //       navigate("/user-interface");
-  //     } else {
-  //       setErrorMessage("Unauthorized request (no webtoken found)");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     setErrorMessage(error.response.data.errorMessage);
-  //   }
-  // }
 
   function handleCancel() {
     setErrorMessage("");
