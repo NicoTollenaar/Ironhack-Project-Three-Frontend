@@ -155,7 +155,7 @@ function TransferPage() {
         setErrorMessage("");
         setSuccessMessage("Blockchain transaction successful!");
         setTimeout(() => {
-          navigate("/user-interface");
+          handleDisconnect();
         }, 2000);
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
