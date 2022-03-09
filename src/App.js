@@ -1,12 +1,10 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import BankInterfacePage from "./pages/BankInterfacePage";
 import UserInterfacePage from "./pages/UserInterfacePage";
 import TransferPage from "./pages/TransferPage";
-import Header from "./components/Header";
-
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
@@ -14,8 +12,25 @@ import IsPrivate from "./components/IsPrivate";
 import IsAnon from "./components/IsAnon";
 
 function App() {
+  const [eventsArray, setEventsArray] = useState([]);
+  // const [listening, setListening] = useState(false);
+
+  useEffect(() => {
+    const eventSource = new EventSource("http://localhost:4001/events");
+
+    eventSource.onmessage = (event) => {
+      const parsedData = JSON.parse(event.data);
+      setEventsArray((eventsArray) => eventsArray.concat(parsedData));
+    };
+  }, []);
+
+  console.log("In App.js (frontend) logging eventsArray: ", eventsArray);
+
   return (
     <div className="App">
+      {/* {eventsArray.map((e) => (
+        <p>{e}</p>
+      ))} */}
       <Navbar />
       {/* <Header /> */}
       <Routes>
