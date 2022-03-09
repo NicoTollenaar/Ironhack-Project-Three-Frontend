@@ -45,15 +45,7 @@ function ModalForm(props) {
 
   useEffect(() => {
     if (props.moveFundsDirection === "off-chain") {
-      connectUserMetaMaskAccount()
-        .then(() =>
-          console.log(
-            "userMetaMaskWallet, isConnected :",
-            userMetaMaskWallet,
-            isMetaMaskConnected
-          )
-        )
-        .catch((err) => console.log(err));
+      connectUserMetaMaskAccount().catch((err) => console.log(err));
     }
   }, []);
 
@@ -159,29 +151,6 @@ function ModalForm(props) {
       await tx.wait();
       console.log("tx : ", tx);
 
-      // ********* the code below should work too (instead of using interface). Problem with below code is that completion of transaction cannot or is not await before retrieving balance, meaning that balance is outdated
-
-      // const chainAccountInterface = new ethers.utils.Interface(artifacts.abi);
-      // const functionParameters = [amountInCents];
-      // const functionSignature = chainAccountInterface.encodeFunctionData(
-      //   "moveFundsOffChain",
-      //   functionParameters
-      // );
-      // console.log("functionSignature :", functionSignature);
-
-      // const transactionParameters = {
-      //   to: chainAccountContractAddress,
-      //   from: signerAddress,
-      //   data: functionSignature,
-      // };
-
-      // const txHash = await window.ethereum.request({
-      //   method: "eth_sendTransaction",
-      //   params: [transactionParameters],
-      // });
-
-      // ****************
-
       const balanceOfAccountholderInCents =
         await chainAccountContract.balanceOf(signerAddress);
       const balanceOfBankInCents = await chainAccountContract.balanceOf(
@@ -202,6 +171,7 @@ function ModalForm(props) {
         transferAmount: amount,
         recipientAccountType: currentAccountholder.offChainAccount.accountType,
         recipientAccountAddress: currentAccountholder.offChainAccount.address,
+        txHash: tx.hash,
       };
       const response = await axios.post(
         `${backendUrl}/move-off-chain`,
@@ -302,3 +272,26 @@ function ModalForm(props) {
 }
 
 export default ModalForm;
+
+// ********* Alternative to remember: works too (instead of using interface).
+
+// const chainAccountInterface = new ethers.utils.Interface(artifacts.abi);
+// const functionParameters = [amountInCents];
+// const functionSignature = chainAccountInterface.encodeFunctionData(
+//   "moveFundsOffChain",
+//   functionParameters
+// );
+// console.log("functionSignature :", functionSignature);
+
+// const transactionParameters = {
+//   to: chainAccountContractAddress,
+//   from: signerAddress,
+//   data: functionSignature,
+// };
+
+// const txHash = await window.ethereum.request({
+//   method: "eth_sendTransaction",
+//   params: [transactionParameters],
+// });
+
+// ****************

@@ -24,15 +24,11 @@ function App() {
     };
   }, []);
 
-  console.log("In App.js (frontend) logging eventsArray: ", eventsArray);
+  console.log("EventsArray: ", eventsArray);
 
   return (
     <div className="App">
-      {/* {eventsArray.map((e) => (
-        <p>{e}</p>
-      ))} */}
       <Navbar />
-      {/* <Header /> */}
       <Routes>
         <Route
           path="/signup"

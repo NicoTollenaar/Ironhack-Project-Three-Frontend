@@ -94,7 +94,8 @@ function TransferPage() {
       newBalanceRecipientFrontend,
       newBalanceTransferorFrontend,
       propertyToUpdate,
-      endpoint;
+      endpoint,
+      txHash;
     switch (fromAccountType) {
       case "on-chain":
         fromAccount = currentAccountholder.onChainAccount;
@@ -126,10 +127,11 @@ function TransferPage() {
     };
     try {
       if (fromAccountType === "on-chain") {
-        ({ newBalanceTransferorFrontend, newBalanceRecipientFrontend } =
+        ({ newBalanceTransferorFrontend, newBalanceRecipientFrontend, txHash } =
           await transferFromOnChainAccount());
         requestBody.newBalanceRecipientFrontend = newBalanceRecipientFrontend;
         requestBody.newBalanceTransferorFrontend = newBalanceTransferorFrontend;
+        requestBody.txHash = txHash;
       }
 
       const storedToken = localStorage.getItem("authToken");
@@ -141,10 +143,13 @@ function TransferPage() {
             headers: { Authorization: `Bearer ${storedToken}` },
           }
         );
+
+        const { dbUpdatedFromAccount } = response.data;
         const updatedAccountholder = {
           ...currentAccountholder,
-          [`${propertyToUpdate}`]: response.data,
+          [`${propertyToUpdate}`]: dbUpdatedFromAccount,
         };
+
         changeCurrentAccountholder(updatedAccountholder);
         setPendingMessage("");
         setErrorMessage("");
@@ -203,7 +208,11 @@ function TransferPage() {
     } else {
       newBalanceRecipientFrontend = null;
     }
-    return { newBalanceTransferorFrontend, newBalanceRecipientFrontend };
+    return {
+      newBalanceTransferorFrontend,
+      newBalanceRecipientFrontend,
+      txHash: tx.hash,
+    };
   }
 
   function handleCancel() {
