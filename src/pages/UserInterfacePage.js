@@ -105,53 +105,17 @@ function UserInterfacePage() {
         <div className="row my-4">
           <div className="col-6 d-flex">
             <h4 className="mx-3">
-              <b>Off-chain account</b>
+              <b>On-chain account</b>
             </h4>
           </div>
           <div className="col-6 d-flex">
             <h4 className="mx-3">
-              <b>On-chain account</b>
+              <b>Off-chain account</b>
             </h4>
           </div>
         </div>
         <div className="row">
-          <div className="col-6">
-            <div className="card m-3">
-              <div className="card-body d-flex flex-column align-items-start w-75">
-                <p className="d-flex w-100">
-                  {currentAccountholder.offChainAccount.address}
-                </p>
-                <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
-                  <h6>
-                    <b>Balance: </b>
-                  </h6>
-                  <h6>
-                    <b>EUR: {currentAccountholder.offChainAccount.balance}</b>
-                  </h6>
-                </div>
-                <Link to="/transactions">Transaction history</Link>
-              </div>
-            </div>
-            <div className="button-container d-flex justify-content-start mx-3">
-              <Button
-                variant="primary"
-                onClick={() => {
-                  if (currentAccountholder.firstName) {
-                    setMoveFundsDirection("on-chain");
-                    setModalShow(true);
-                  }
-                }}
-              >
-                Move funds on-chain
-              </Button>
-              <button
-                className="mx-4"
-                onClick={() => navigate("/transfer/off-chain")}
-              >
-                Transfer
-              </button>
-            </div>
-          </div>
+          {/*  */}
           <div className="col-6">
             <div className="card m-3">
               <div className="card-body d-flex flex-column align-items-start w-75">
@@ -184,6 +148,44 @@ function UserInterfacePage() {
               <button
                 className="mx-4"
                 onClick={() => navigate("/transfer/on-chain")}
+              >
+                Transfer
+              </button>
+            </div>
+          </div>
+
+          <div className="col-6">
+            <div className="card m-3">
+              <div className="card-body d-flex flex-column align-items-start w-75">
+                <p className="d-flex w-100">
+                  {currentAccountholder.offChainAccount.address}
+                </p>
+                <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
+                  <h6>
+                    <b>Balance: </b>
+                  </h6>
+                  <h6>
+                    <b>EUR: {currentAccountholder.offChainAccount.balance}</b>
+                  </h6>
+                </div>
+                <Link to="/transactions">Transaction history</Link>
+              </div>
+            </div>
+            <div className="button-container d-flex justify-content-start mx-3">
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (currentAccountholder.firstName) {
+                    setMoveFundsDirection("on-chain");
+                    setModalShow(true);
+                  }
+                }}
+              >
+                Move funds on-chain
+              </Button>
+              <button
+                className="mx-4"
+                onClick={() => navigate("/transfer/off-chain")}
               >
                 Transfer
               </button>
