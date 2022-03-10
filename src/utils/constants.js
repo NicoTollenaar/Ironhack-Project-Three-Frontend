@@ -1,5 +1,5 @@
 const backendUrlLocalHost = "http://localhost:4001";
-const backendUrlHeroku = "";
+const backendUrlHeroku = "https://chainaccount-api.herokuapp.com";
 
 const ETHAddressBank = "0x03F04fDa3B6E6FA1783A5EDB810155e5F4dD5461";
 const DECIMALS = 2;
@@ -11,7 +11,7 @@ const alchemyRinkebyUrl =
   "https://eth-rinkeby.alchemyapi.io/v2/7eJSSFxEImk4KkiEgIqx92i5r29HLEUK";
 
 module.exports = {
-  backendUrlConstant: backendUrlLocalHost,
+  backendUrlConstant: backendUrlHeroku,
   chainAccountContractAddress: contractAddressOnRinkeby,
   providerUrl: alchemyRinkebyUrl,
   ETHAddressBank,
