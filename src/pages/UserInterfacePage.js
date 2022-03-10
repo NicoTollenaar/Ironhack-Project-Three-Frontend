@@ -24,7 +24,7 @@ function UserInterfacePage() {
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:4001/events");
+    const eventSource = new EventSource(`${backendUrl}/events`);
     eventSource.onmessage = (event) => {
       const parsedData = JSON.parse(event.data);
       console.log(

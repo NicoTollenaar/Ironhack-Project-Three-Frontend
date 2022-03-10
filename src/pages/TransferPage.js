@@ -7,10 +7,11 @@ import { ethers } from "ethers";
 import artifacts from "./../blockchainSources/artifacts/ChainAccountArtifacts";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
-const ETHAddressBank = "0x03F04fDa3B6E6FA1783A5EDB810155e5F4dD5461";
-const chainAccountContractAddress =
-  "0x471184AE3a9632a3a65d846f961b3a4b8A9e416A";
-const DECIMALS = 2;
+import {
+  chainAccountContractAddress,
+  ETHAddressBank,
+  DECIMALS,
+} from "./../utils/constants";
 
 function TransferPage() {
   let backendUrl = useContext(BackendUrlContext);

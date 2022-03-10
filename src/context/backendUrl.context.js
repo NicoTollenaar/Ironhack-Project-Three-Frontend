@@ -1,14 +1,14 @@
 // import "dotenv/config";
 
 import { createContext, useState } from "react";
+import { backendUrlConstant } from "../utils/constants";
 
 const BackendUrlContext = createContext();
 
 function BackendUrlProviderWrapper(props) {
-  // const [backendUrl, setBackEndUrl] = useState(
-  //   process.env.CHAINACCOUNT_API_URL
-  // );
-  const [backendUrl, setBackEndUrl] = useState("http://localhost:4001");
+  const [backendUrl, setBackEndUrl] = useState(backendUrlConstant);
+
+  console.log("In backendurl context, logging bankendUrl: ", backendUrl);
 
   return (
     <BackendUrlContext.Provider value={backendUrl}>

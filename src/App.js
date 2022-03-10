@@ -13,43 +13,6 @@ import IsPrivate from "./components/IsPrivate";
 import IsAnon from "./components/IsAnon";
 
 function App() {
-  // let { currentAccountholder, changeCurrentAccountholder } = useContext(
-  //   CurrentAccountholderContext
-  // );
-  
-
-  // let navigate = useNavigate();
-
-  // useEffect(() => {
-  //   const eventSource = new EventSource("http://localhost:4001/events");
-  //   eventSource.onmessage = (event) => {
-  //     const parsedData = JSON.parse(event.data);
-  //     console.log(
-  //       "In app.js, first logging parsedData before update: ",
-  //       parsedData
-  //     );
-
-  //     const { dbUpdatedFromAccount } = parsedData;
-  //     console.log(
-  //       "In app.js, then logging currentAccountholder before update: ",
-  //       currentAccountholder
-  //     );
-
-  //     const updatedCurrentAccountholder = {
-  //       ...currentAccountholder,
-  //       onChainAccount: dbUpdatedFromAccount,
-  //     };
-  //     console.log(
-  //       "Still in app.js, finally logging updatedCurrentAccountholder after update: ",
-  //       updatedCurrentAccountholder
-  //     );
-
-  //     changeCurrentAccountholder(updatedCurrentAccountholder);
-  //     navigate("/user-interface");
-  //   };
-  // }, []);
-
-
   return (
     <div className="App">
       <Navbar />

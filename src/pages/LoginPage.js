@@ -12,6 +12,8 @@ function LoginPage() {
   const backendUrl = useContext(BackendUrlContext);
   let navigate = useNavigate();
 
+  console.log("In loginpage, logging backendUrl: ", backendUrl);
+
   async function handleSubmit(e) {
     e.preventDefault();
     const requestBody = { email, password };
