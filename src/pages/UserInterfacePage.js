@@ -8,11 +8,11 @@ import { CurrentAccountholderContext } from "../context/currentAccountholder.con
 
 function UserInterfacePage() {
   const backendUrl = useContext(BackendUrlContext);
-  const [modalShow, setModalShow] = useState(false);
-  const [moveFundsDirection, setMoveFundsDirection] = useState("");
   const { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
+  const [modalShow, setModalShow] = useState(false);
+  const [moveFundsDirection, setMoveFundsDirection] = useState("");
   const [query, setQuery] = useState();
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -21,6 +21,35 @@ function UserInterfacePage() {
 
   useEffect(() => {
     changeCurrentAccountholder(currentAccountholder);
+  }, []);
+
+  useEffect(() => {
+    const eventSource = new EventSource("http://localhost:4001/events");
+    eventSource.onmessage = (event) => {
+      const parsedData = JSON.parse(event.data);
+      console.log(
+        "In UserInterfacePage, first logging parsedData before update: ",
+        parsedData
+      );
+
+      const { dbUpdatedFromAccount } = parsedData;
+      console.log(
+        "In UserInterfacePage, then logging currentAccountholder before update: ",
+        currentAccountholder
+      );
+
+      const updatedCurrentAccountholder = {
+        ...currentAccountholder,
+        onChainAccount: dbUpdatedFromAccount,
+      };
+      console.log(
+        "Still in UserInterfacePage, finally logging updatedCurrentAccountholder after update: ",
+        updatedCurrentAccountholder
+      );
+
+      changeCurrentAccountholder(updatedCurrentAccountholder);
+      navigate("/user-interface");
+    };
   }, []);
 
   async function handleSubmit(e) {
@@ -36,12 +65,7 @@ function UserInterfacePage() {
             headers: { Authorization: `Bearer ${storedToken}` },
           }
         );
-
         changeCurrentAccountholder(response.data);
-        console.log(
-          "In userinterfacepage, logging currentAccountholder (after update) :",
-          currentAccountholder
-        );
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
       }
