@@ -37,7 +37,6 @@ function UserInterfacePage() {
         "In UserInterfacePage, then logging currentAccountholder before update: ",
         currentAccountholder
       );
-
       const updatedCurrentAccountholder = {
         ...currentAccountholder,
         onChainAccount: dbUpdatedFromAccount,
@@ -46,7 +45,6 @@ function UserInterfacePage() {
         "Still in UserInterfacePage, finally logging updatedCurrentAccountholder after update: ",
         updatedCurrentAccountholder
       );
-
       changeCurrentAccountholder(updatedCurrentAccountholder);
       navigate("/user-interface");
     };
