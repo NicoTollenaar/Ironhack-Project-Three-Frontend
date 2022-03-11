@@ -84,7 +84,6 @@ function TransferPage() {
   async function handleDisconnect() {
     setIsMetaMaskConnected(false);
     setUserMetaMaskWallet("");
-    setErrorMessage("");
     navigate("/user-interface");
   }
 
@@ -158,6 +157,7 @@ function TransferPage() {
         setErrorMessage("");
         setSuccessMessage("Transaction successful!");
         setTimeout(() => {
+          setSuccessMessage("");
           handleDisconnect();
         }, 1000);
       } else {
