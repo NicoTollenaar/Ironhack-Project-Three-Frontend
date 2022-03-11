@@ -199,7 +199,7 @@ function ModalForm(props) {
       setSuccessMessage("Blockchain transaction successful!");
       setTimeout(() => {
         props.closeModal();
-      }, 2000);
+      }, 1000);
     } catch (error) {
       console.log(error);
     }

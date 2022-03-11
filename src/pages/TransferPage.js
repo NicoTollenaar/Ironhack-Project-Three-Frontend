@@ -49,6 +49,7 @@ function TransferPage() {
   }, []);
 
   useEffect(() => {
+    if (!(fromAccountType === "off-chain" && accountType === "off-chain")) {
     connectUserMetaMaskAccount()
       .then(() =>
         console.log(
@@ -58,6 +59,7 @@ function TransferPage() {
         )
       )
       .catch((err) => console.log(err));
+    }
   }, []);
 
   useEffect(() => {
@@ -154,10 +156,10 @@ function TransferPage() {
         changeCurrentAccountholder(updatedAccountholder);
         setPendingMessage("");
         setErrorMessage("");
-        setSuccessMessage("Blockchain transaction successful!");
+        setSuccessMessage("Transaction successful!");
         setTimeout(() => {
           handleDisconnect();
-        }, 2000);
+        }, 1000);
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
         throw new Error("Unauthorized request (no webtoken found)");
@@ -188,7 +190,7 @@ function TransferPage() {
 
     if (tx) {
       setPendingMessage("");
-      setSuccessMessage("Blockchain transaction succesful!");
+      setSuccessMessage("Transaction succesful!");
     }
 
     const newBalanceTransferorFrontendHexInCents =
