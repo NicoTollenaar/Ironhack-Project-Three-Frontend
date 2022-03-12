@@ -8,8 +8,6 @@ const BackendUrlContext = createContext();
 function BackendUrlProviderWrapper(props) {
   const [backendUrl, setBackEndUrl] = useState(backendUrlConstant);
 
-  console.log("In backendurl context, logging bankendUrl: ", backendUrl);
-
   return (
     <BackendUrlContext.Provider value={backendUrl}>
       {props.children}

@@ -24,31 +24,19 @@ function UserInterfacePage() {
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource(`${backendUrl}/events`, {withCredentials: true});
+    const eventSource = new EventSource(`${backendUrl}/events`);
     eventSource.onopen = function() {
       console.log("Client connection to server opened.");
     };
-    console.log("logging event source (check withCredentials setting): ", eventSource);
     eventSource.onmessage = (event) => {
       const parsedData = JSON.parse(event.data);
-      console.log(
-        "In UserInterfacePage, first logging parsedData before update: ",
-        parsedData
-      );
 
       const { dbUpdatedFromAccount } = parsedData;
-      console.log(
-        "In UserInterfacePage, then logging currentAccountholder before update: ",
-        currentAccountholder
-      );
+      
       const updatedCurrentAccountholder = {
         ...currentAccountholder,
         onChainAccount: dbUpdatedFromAccount,
       };
-      console.log(
-        "Still in UserInterfacePage, finally logging updatedCurrentAccountholder after update: ",
-        updatedCurrentAccountholder
-      );
       changeCurrentAccountholder(updatedCurrentAccountholder);
       navigate("/user-interface");
     };
@@ -57,14 +45,6 @@ function UserInterfacePage() {
       setErrorMessage("Error in eventSource:", err);
     };
   }, []);
-
-useEffect(()=>{
-  eventSource.onerror = function(err) {
-    console.error("EventSource failed:", err);
-    setErrorMessage("Error in eventSource:", err);
-  };
-}, []);
-
 
   async function handleSubmit(e) {
     e.preventDefault();

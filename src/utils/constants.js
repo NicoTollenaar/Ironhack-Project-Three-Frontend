@@ -1,7 +1,5 @@
 const backendUrlConstant = process.env.REACT_APP_CHAINACCOUNT_API || "http://localhost:4001";
-// const backendUrlConstant = "https://chainaccount-api.herokuapp.com";
 
-console.log("In utils/constants, logging process.env: ", process.env);
 const ETHAddressBank = "0x03F04fDa3B6E6FA1783A5EDB810155e5F4dD5461";
 const DECIMALS = 2;
 

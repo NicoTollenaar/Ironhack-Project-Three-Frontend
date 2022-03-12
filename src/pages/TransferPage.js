@@ -50,15 +50,7 @@ function TransferPage() {
 
   useEffect(() => {
     if (!(fromAccountType === "off-chain" && accountType === "off-chain")) {
-    connectUserMetaMaskAccount()
-      .then(() =>
-        console.log(
-          "userMetaMaskWallet, isConnected :",
-          userMetaMaskWallet,
-          isMetaMaskConnected
-        )
-      )
-      .catch((err) => console.log(err));
+    connectUserMetaMaskAccount().catch((err) => console.log("User Interface Page, error in calling connectUser, loggin error: ", err));
     }
   }, []);
 
@@ -67,21 +59,38 @@ function TransferPage() {
   }, [userMetaMaskWallet]);
 
   async function connectUserMetaMaskAccount() {
-    const accounts = await window.ethereum
-      .request({
-        method: "wallet_requestPermissions",
-        params: [
-          {
-            eth_accounts: {},
-          },
-        ],
-      })
-      .then(() => window.ethereum.request({ method: "eth_requestAccounts" }));
-    setUserMetaMaskWallet(accounts[0]);
-    setIsMetaMaskConnected(true);
+    try {
+      const responsePermissionsRequest = await window.ethereum.request({
+          method: "wallet_requestPermissions",
+          params: [
+            {
+              eth_accounts: {},
+            },
+          ],
+        });
+  
+        console.log("User Interface Page, logging response to wallet_requestPermissions: ", responsePermissionsRequest);
+  
+        const connectedAccountsArray = await window.ethereum.request({ method: "eth_requestAccounts" });
+        
+        console.log("User Interface Page, logging response from eth_requestAcounts (connectedAccountsArray): ", connectedAccountsArray);
+        
+        setUserMetaMaskWallet(connectedAccountsArray[0]);
+        
+        setIsMetaMaskConnected(true);
+    } catch (error) {
+      console.log("Error in connecting user (UserInterfacePage), logging error: ", error);
+      setErrorMessage("Error in connecting user (UserInterfacePage): ", error);
+    }
   }
 
-  async function handleDisconnect() {
+  console.log(
+    "userMetaMaskWallet, isConnected :",
+    userMetaMaskWallet,
+    isMetaMaskConnected
+  );
+
+  function handleDisconnect() {
     setIsMetaMaskConnected(false);
     setUserMetaMaskWallet("");
     navigate("/user-interface");
@@ -153,13 +162,13 @@ function TransferPage() {
         };
 
         changeCurrentAccountholder(updatedAccountholder);
-        setPendingMessage("");
+        // setPendingMessage("");
         setErrorMessage("");
-        setSuccessMessage("Transaction successful!");
+        // setSuccessMessage("Transaction successful!");
         setTimeout(() => {
           setSuccessMessage("");
           handleDisconnect();
-        }, 1000);
+        }, 100);
       } else {
         setErrorMessage("Unauthorized request (no webtoken found)");
         throw new Error("Unauthorized request (no webtoken found)");
