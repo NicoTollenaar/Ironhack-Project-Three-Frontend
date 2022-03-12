@@ -24,7 +24,11 @@ function UserInterfacePage() {
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource(`${backendUrl}/events`);
+    const eventSource = new EventSource(`${backendUrl}/events`, {withCredentials: true});
+    eventSource.onopen = function() {
+      console.log("Client connection to server opened.");
+    };
+    console.log("logging event source (check withCredentials setting): ", eventSource);
     eventSource.onmessage = (event) => {
       const parsedData = JSON.parse(event.data);
       console.log(
@@ -48,7 +52,19 @@ function UserInterfacePage() {
       changeCurrentAccountholder(updatedCurrentAccountholder);
       navigate("/user-interface");
     };
+    eventSource.onerror = function(err) {
+      console.error("EventSource failed:", err);
+      setErrorMessage("Error in eventSource:", err);
+    };
   }, []);
+
+useEffect(()=>{
+  eventSource.onerror = function(err) {
+    console.error("EventSource failed:", err);
+    setErrorMessage("Error in eventSource:", err);
+  };
+}, []);
+
 
   async function handleSubmit(e) {
     e.preventDefault();
