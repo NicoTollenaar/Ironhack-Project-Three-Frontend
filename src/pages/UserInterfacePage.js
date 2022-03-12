@@ -26,7 +26,6 @@ function UserInterfacePage() {
   useEffect(() => {
     const eventSource = new EventSource(`${backendUrl}/events`);
     eventSource.onopen = function() {
-      console.log("Client connection to server opened.");
     };
     eventSource.onmessage = (event) => {
       const parsedData = JSON.parse(event.data);
@@ -42,7 +41,6 @@ function UserInterfacePage() {
     };
     eventSource.onerror = function(err) {
       console.error("EventSource failed:", err);
-      setErrorMessage("Error in eventSource:", err);
     };
   }, []);
 

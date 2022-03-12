@@ -36,11 +36,9 @@ function TransferPage() {
   useEffect(() => {
     if (typeof window.ethereum !== undefined) {
       window.ethereum.on("accountsChanged", (accounts) => {
-        console.log("Account changed: ", accounts[0]);
         setUserMetaMaskWallet(accounts[0]);
       });
       window.ethereum.on("chainChanged", (chaindId) => {
-        console.log("Chain ID changed: ", chaindId);
         setCurrentChain(chaindId);
       });
     } else {
@@ -69,11 +67,7 @@ function TransferPage() {
           ],
         });
   
-        console.log("User Interface Page, logging response to wallet_requestPermissions: ", responsePermissionsRequest);
-  
         const connectedAccountsArray = await window.ethereum.request({ method: "eth_requestAccounts" });
-        
-        console.log("User Interface Page, logging response from eth_requestAcounts (connectedAccountsArray): ", connectedAccountsArray);
         
         setUserMetaMaskWallet(connectedAccountsArray[0]);
         
@@ -83,12 +77,6 @@ function TransferPage() {
       setErrorMessage("Error in connecting user (UserInterfacePage): ", error);
     }
   }
-
-  console.log(
-    "userMetaMaskWallet, isConnected :",
-    userMetaMaskWallet,
-    isMetaMaskConnected
-  );
 
   function handleDisconnect() {
     setIsMetaMaskConnected(false);

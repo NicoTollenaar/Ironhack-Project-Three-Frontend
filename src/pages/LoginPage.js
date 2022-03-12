@@ -12,19 +12,12 @@ function LoginPage() {
   const backendUrl = useContext(BackendUrlContext);
   let navigate = useNavigate();
 
-  console.log("In loginpage, logging backendUrl: ", backendUrl);
-
   async function handleSubmit(e) {
     e.preventDefault();
     const requestBody = { email, password };
     try {
       const response = await axios.post(`${backendUrl}/login`, requestBody);
-      console.log("response from axios: ", response);
       const { authToken } = response.data;
-      console.log(
-        "In LoginPage, handlesubmit, logging authToken receieved from server (response.data.authToken): ",
-        authToken
-      );
       storeToken(authToken);
       authenticateUser();
       setEmail("");
