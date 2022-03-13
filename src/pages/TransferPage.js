@@ -73,8 +73,7 @@ function TransferPage() {
         
         setIsMetaMaskConnected(true);
     } catch (error) {
-      console.log("Error in connecting user (UserInterfacePage), logging error: ", error);
-      setErrorMessage("Error in connecting user (UserInterfacePage): ", error);
+      console.log("Error in connectUserMetaMaskAccount (UserInterfacePage), logging error: ", error);
     }
   }
 
