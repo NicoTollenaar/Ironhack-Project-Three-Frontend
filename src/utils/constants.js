@@ -9,10 +9,13 @@ const contractAddressOnRinkeby = "0x511103EE939859971B00F240c7865e1885EbC825";
 const alchemyRinkebyUrl =
   "https://eth-rinkeby.alchemyapi.io/v2/7eJSSFxEImk4KkiEgIqx92i5r29HLEUK";
 
+const wssBackendUrl = process.env.REACT_APP_WSS_URI || "ws://localhost:4001";
+
 module.exports = {
   backendUrlConstant,
   chainAccountContractAddress: contractAddressOnRinkeby,
   providerUrl: alchemyRinkebyUrl,
   ETHAddressBank,
   DECIMALS: 2,
+  wssBackendUrl,
 };

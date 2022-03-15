@@ -5,6 +5,7 @@ import { BackendUrlContext } from "../context/backendUrl.context";
 import MoveFundsModal from "../components/MoveFundsModal";
 import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
+import { wssBackendUrl } from "./../utils/constants";
 
 function UserInterfacePage() {
   const backendUrl = useContext(BackendUrlContext);
@@ -23,25 +24,64 @@ function UserInterfacePage() {
     changeCurrentAccountholder(currentAccountholder);
   }, []);
 
-  useEffect(() => {
-    const eventSource = new EventSource(`${backendUrl}/events`);
-    eventSource.onopen = function() {
-    };
-    eventSource.onmessage = (event) => {
-      const parsedData = JSON.parse(event.data);
+  // useEffect(() => {
+  //   const eventSource = new EventSource(`${backendUrl}/events`);
+  //   eventSource.onmessage = (event) => {
+  //     const parsedData = JSON.parse(event.data);
 
+  //     const { dbUpdatedFromAccount } = parsedData;
+
+  //     console.log("eventSource.onmessage triggered, logging received data (dbUpdatedFromAccount): ", dbUpdatedFromAccount);
+      
+  //     const updatedCurrentAccountholder = {
+  //       ...currentAccountholder,
+  //       onChainAccount: dbUpdatedFromAccount,
+  //     };
+  //     changeCurrentAccountholder(updatedCurrentAccountholder);
+  //     navigate("/user-interface");
+  //   };
+  //   eventSource.onerror = function(err) {
+  //     console.error("EventSource failed:", err);
+  //   };
+  // }, []);
+
+  useEffect(()=>{
+    const socket = new WebSocket(wssBackendUrl);
+    socket.onopen = function(event) {
+      console.log("Websocket connection established, logging host and argument event: ", wssBackendUrl, event);
+    };
+    
+    socket.onmessage = function(event) {
+      console.log(`Websocket message: data received from server: ${event.data}`);
+      
+      const parsedData = JSON.parse(event.data);
+      
       const { dbUpdatedFromAccount } = parsedData;
+      
+      console.log("socket.onmessage triggered, logging received data (dbUpdatedFromAccount): ", dbUpdatedFromAccount);
       
       const updatedCurrentAccountholder = {
         ...currentAccountholder,
         onChainAccount: dbUpdatedFromAccount,
       };
       changeCurrentAccountholder(updatedCurrentAccountholder);
-      navigate("/user-interface");
+      // navigate("/user-interface");
     };
-    eventSource.onerror = function(err) {
-      console.error("EventSource failed:", err);
+
+    socket.onclose = function(event) {
+      if (event.wasClean) {
+        console.log(`Websocket connection closed cleanly, code=${event.code} reason=${event.reason}`);
+      } else {
+        // e.g. server process killed or network down
+        // event.code is usually 1006 in this case
+        console.log('Websocket connection closed, but abnormally, logging event:', event);
+      }
     };
+    
+    socket.onerror = function(error) {
+      console.log(`In socket.onerror, logging error.message: ${error.message}`);
+    };
+    
   }, []);
 
   async function handleSubmit(e) {
