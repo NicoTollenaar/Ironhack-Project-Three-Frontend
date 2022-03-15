@@ -46,40 +46,52 @@ function UserInterfacePage() {
   // }, []);
 
   useEffect(()=>{
-    const socket = new WebSocket(wssBackendUrl);
+    let socket = new WebSocket(wssBackendUrl);
     socket.onopen = function(event) {
       console.log("Websocket connection established, logging host and argument event: ", wssBackendUrl, event);
     };
     
     socket.onmessage = function(event) {
-      console.log(`Websocket message: data received from server: ${event.data}`);
       
-      const parsedData = JSON.parse(event.data);
-      
-      const { dbUpdatedFromAccount } = parsedData;
-      
-      console.log("socket.onmessage triggered, logging received data (dbUpdatedFromAccount): ", dbUpdatedFromAccount);
-      
-      const updatedCurrentAccountholder = {
-        ...currentAccountholder,
-        onChainAccount: dbUpdatedFromAccount,
-      };
-      changeCurrentAccountholder(updatedCurrentAccountholder);
-      // navigate("/user-interface");
+      if (event.data === "ping") {
+        socket.send("pong");
+      } else {
+        try {
+          const parsedData = JSON.parse(event.data);
+
+          const { dbUpdatedFromAccount } = parsedData;
+          
+          console.log("Websocket messaged received, logging received data (parsedData): ", parsedData);
+          
+          const updatedCurrentAccountholder = {
+            ...currentAccountholder,
+            onChainAccount: dbUpdatedFromAccount,
+          };
+          changeCurrentAccountholder(updatedCurrentAccountholder);
+          console.log("In UserInterfacePage, logging window.location.pathname: ", window.location.pathname);
+          if (window.location.pathname !== "/user-interface") {
+            navigate("/user-interface");
+          }
+        } catch(err) {
+          console.log("data received is invalid json, logging received data (event.data): ", event.data);
+        }
+      }
     };
+
+    socket.onerror = event => {
+      console.log("A websocket error occurred, logging error: ", event);
+      setErrorMessage(`A websocket error occurred, logging error: ${event}`);
+    }
 
     socket.onclose = function(event) {
       if (event.wasClean) {
         console.log(`Websocket connection closed cleanly, code=${event.code} reason=${event.reason}`);
       } else {
+      socket = new WebSocket(wssBackendUrl);
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
-        console.log('Websocket connection closed, but abnormally, logging event:', event);
+        console.log('Websocket connection closed abnormally, logging event:', event);
       }
-    };
-    
-    socket.onerror = function(error) {
-      console.log(`In socket.onerror, logging error.message: ${error.message}`);
     };
     
   }, []);

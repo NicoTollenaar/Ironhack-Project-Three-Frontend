@@ -78,9 +78,12 @@ function TransferPage() {
   }
 
   function handleDisconnect() {
+    console.log("In UserInterfacePage, in handledisconnet before navigate is called");
+
     setIsMetaMaskConnected(false);
     setUserMetaMaskWallet("");
     navigate("/user-interface");
+    console.log("In UserInterfacePage, in handledisconnet after navigate is called");
   }
 
   async function handleSubmit(e) {
@@ -148,12 +151,17 @@ function TransferPage() {
           [`${propertyToUpdate}`]: dbUpdatedFromAccount,
         };
 
+        console.log("In UserInterfacePage, logging response to axios post (response.data): ", response.data)
+        console.log("In UserInterfacePage, logging updated accountholder: ", updatedAccountholder);
+        
+
         changeCurrentAccountholder(updatedAccountholder);
         // setPendingMessage("");
         setErrorMessage("");
         // setSuccessMessage("Transaction successful!");
         setTimeout(() => {
           setSuccessMessage("");
+          console.log("In UserInterfacePage, in setTimeout, just before calling handledisconnet");
           handleDisconnect();
         }, 100);
       } else {
