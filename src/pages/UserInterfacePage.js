@@ -46,54 +46,59 @@ function UserInterfacePage() {
   // }, []);
 
   useEffect(()=>{
-    let socket = new WebSocket(wssBackendUrl);
-    socket.onopen = function(event) {
-      console.log("Websocket connection established, logging host and argument event: ", wssBackendUrl, event);
-    };
-    
-    socket.onmessage = function(event) {
-      
-      if (event.data === "ping") {
-        socket.send("pong");
-      } else {
-        try {
-          const parsedData = JSON.parse(event.data);
+    function createWebSocketConnection(){
+      let socket = new WebSocket(wssBackendUrl);
+      socket.onopen = function(event) {
+        console.log("Websocket connection established, logging host and argument event: ", wssBackendUrl, event);
+      };
+  
+      socket.onmessage = function(event) {
+        
+        if (event.data.toString() === "ping") {
+          console.log(event.data);
+          socket.send("pong");
+        } else {
+          try {
+            const parsedData = JSON.parse(event.data);
 
-          const { dbUpdatedFromAccount } = parsedData;
-          
-          console.log("Websocket messaged received, logging received data (parsedData): ", parsedData);
-          
-          const updatedCurrentAccountholder = {
-            ...currentAccountholder,
-            onChainAccount: dbUpdatedFromAccount,
-          };
-          changeCurrentAccountholder(updatedCurrentAccountholder);
-          console.log("In UserInterfacePage, logging window.location.pathname: ", window.location.pathname);
-          if (window.location.pathname !== "/user-interface") {
-            navigate("/user-interface");
+            const { dbUpdatedFromAccount } = parsedData;
+            
+            console.log("Websocket messaged received, logging received data (parsedData): ", parsedData);
+            
+            const updatedCurrentAccountholder = {
+              ...currentAccountholder,
+              onChainAccount: dbUpdatedFromAccount,
+            };
+            changeCurrentAccountholder(updatedCurrentAccountholder);
+            console.log("In UserInterfacePage, logging window.location.pathname: ", window.location.pathname);
+            if (window.location.pathname !== "/user-interface") {
+              navigate("/user-interface");
+            }
+          } catch(err) {
+            console.log("Data received is invalid json, logging received data (event.data): ", event.data);
           }
-        } catch(err) {
-          console.log("data received is invalid json, logging received data (event.data): ", event.data);
         }
       }
-    };
 
-    socket.onerror = event => {
-      console.log("A websocket error occurred, logging error: ", event);
-      setErrorMessage(`A websocket error occurred, logging error: ${event}`);
-    }
-
-    socket.onclose = function(event) {
-      if (event.wasClean) {
-        console.log(`Websocket connection closed cleanly, code=${event.code} reason=${event.reason}`);
-      } else {
-      socket = new WebSocket(wssBackendUrl);
-        // e.g. server process killed or network down
-        // event.code is usually 1006 in this case
-        console.log('Websocket connection closed abnormally, logging event:', event);
+      socket.onerror = event => {
+        socket.close();
+        console.log("A websocket error occurred, logging error: ", event);
+        setErrorMessage(`A websocket error occurred, logging error: ${event}`);
       }
+
+      socket.onclose = function(event) {
+        if (event.wasClean) {
+          console.log(`Websocket connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        } else {
+          console.log('Websocket connection closed abnormally, logging event:', event);
+          socket = null;
+          createWebSocketConnection();
+        }
+      };
     };
-    
+
+    createWebSocketConnection();
+
   }, []);
 
   async function handleSubmit(e) {
