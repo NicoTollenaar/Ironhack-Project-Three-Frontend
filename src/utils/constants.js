@@ -11,7 +11,7 @@ const alchemyRinkebyUrl =
 
 const providerUrl = process.env.REACT_APP_ALCHEMY_RINKEBY_URL || ganacheUrl;
 
-chainAccountContractAddress = process.env.REACT_APP_CONTRACT_ADDRESS_ON_RINKEBY || contractAddressOnGanache;
+const chainAccountContractAddress = process.env.REACT_APP_CONTRACT_ADDRESS_ON_RINKEBY || contractAddressOnGanache;
 
 const wssBackendUrl = process.env.REACT_APP_WSS_URI || "ws://localhost:4001";
 
