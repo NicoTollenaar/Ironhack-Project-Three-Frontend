@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import BankInterfacePage from "./pages/BankInterfacePage";
 import UserInterfacePage from "./pages/UserInterfacePage";
 import TransferPage from "./pages/TransferPage";
+import TransactionsPage from "./pages/TransactionsPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
@@ -63,6 +64,14 @@ function App() {
           element={
             <IsPrivate>
               <TransferPage />
+            </IsPrivate>
+          }
+        />
+       <Route
+          path="/transactions/:accountType"
+          element={
+            <IsPrivate>
+              <TransactionsPage />
             </IsPrivate>
           }
         />

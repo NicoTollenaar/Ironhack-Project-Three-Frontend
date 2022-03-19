@@ -113,6 +113,29 @@ function UserInterfacePage() {
       <div className="container-fluid">
         <div className="row">
           <div className="col-6">
+            <div className="m-3">
+              <div className="card-body d-flex flex-column align-items-start">
+                <div className="d-flex flex-column align-items-start">
+                  <h3 className="text-align-start">
+                    Accountholder {currentAccountholder.firstName}
+                  </h3>
+                  <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
+                    <h6 className="">
+                      <b>Total Balance: </b>
+                    </h6>
+                    <h6>
+                      <b>
+                        EUR:{" "}
+                        {currentAccountholder.onChainAccount.balance +
+                          currentAccountholder.offChainAccount.balance}
+                      </b>
+                    </h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-6">
             <form onSubmit={handleSubmit} className="d-flex flex-column">
               <div>
                 <input
@@ -129,29 +152,6 @@ function UserInterfacePage() {
                 {errorMessage}
               </div>
             )}
-          </div>
-          <div className="col-6">
-            <div className="m-3">
-              <div className="card-body d-flex flex-column align-items-start">
-                <div className="d-flex flex-column align-items-start">
-                  <h4 className="text-align-start">
-                    Accountholder {currentAccountholder.firstName}
-                  </h4>
-                  <div className="my-3 w-100 total-balance-wrapper d-flex justify-content-between">
-                    <h6 className="">
-                      <b>Total Balance: </b>
-                    </h6>
-                    <h6>
-                      <b>
-                        EUR:{" "}
-                        {currentAccountholder.onChainAccount.balance +
-                          currentAccountholder.offChainAccount.balance}
-                      </b>
-                    </h6>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div className="row my-4">
@@ -182,7 +182,7 @@ function UserInterfacePage() {
                     <b>EUR: {currentAccountholder.onChainAccount.balance}</b>
                   </h6>
                 </div>
-                <Link to="/transactions">Transaction history</Link>
+                <Link to="/transactions/on-chain">See transactions</Link>
               </div>
             </div>
             <div className="button-container d-flex justify-content-start mx-3">
@@ -220,7 +220,7 @@ function UserInterfacePage() {
                     <b>EUR: {currentAccountholder.offChainAccount.balance}</b>
                   </h6>
                 </div>
-                <Link to="/transactions">Transaction history</Link>
+                <Link to="/transactions/off-chain">See transactions</Link>
               </div>
             </div>
             <div className="button-container d-flex justify-content-start mx-3">
