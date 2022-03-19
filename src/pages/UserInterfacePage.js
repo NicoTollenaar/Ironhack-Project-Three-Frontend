@@ -24,27 +24,6 @@ function UserInterfacePage() {
     changeCurrentAccountholder(currentAccountholder);
   }, []);
 
-  // useEffect(() => {
-  //   const eventSource = new EventSource(`${backendUrl}/events`);
-  //   eventSource.onmessage = (event) => {
-  //     const parsedData = JSON.parse(event.data);
-
-  //     const { dbUpdatedFromAccount } = parsedData;
-
-  //     console.log("eventSource.onmessage triggered, logging received data (dbUpdatedFromAccount): ", dbUpdatedFromAccount);
-      
-  //     const updatedCurrentAccountholder = {
-  //       ...currentAccountholder,
-  //       onChainAccount: dbUpdatedFromAccount,
-  //     };
-  //     changeCurrentAccountholder(updatedCurrentAccountholder);
-  //     navigate("/user-interface");
-  //   };
-  //   eventSource.onerror = function(err) {
-  //     console.error("EventSource failed:", err);
-  //   };
-  // }, []);
-
   useEffect(()=>{
     function createWebSocketConnection(){
       let socket = new WebSocket(wssBackendUrl);
