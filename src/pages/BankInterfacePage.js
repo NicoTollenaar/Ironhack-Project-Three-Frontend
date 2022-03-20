@@ -57,15 +57,30 @@ function BankInterfacePage() {
               </tr>
               <tr>
                 <td className="text-start px-5">Total liabilites off-chain accounts</td>
-                <td className="text-start">EUR {totalOnChainLiabilities}</td>
+                <td className="text-start" >
+                  <div className="d-flex justify-content-between">
+                    <div>EUR</div>  
+                    <div>{totalOnChainLiabilities}</div>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td className="text-start px-5">Total liabilities on-chain accounts</td>
-                <td className="text-start">EUR {totalOffChainLiabilities}</td>
+                <td className="text-start">
+                <div className="d-flex justify-content-between">
+                    <div>EUR</div>  
+                    <div>{totalOffChainLiabilities}</div>
+                  </div>
+                </td>
               </tr>
               <tr className="">
                 <td className="text-start"><b>Total liabilities</b></td>
-                <td className="text-start"><b>EUR: {totalOffChainLiabilities + totalOnChainLiabilities}</b></td>
+                <td className="text-start">
+                  <div className="d-flex justify-content-between">
+                  <b>EUR</b>
+                  <b>{totalOffChainLiabilities + totalOnChainLiabilities}</b>
+                  </div>
+                </td>
               </tr>
               </tbody>
               </table>
@@ -88,19 +103,33 @@ function BankInterfacePage() {
                     <th className="text-start" scope="col">On-chain balance</th>
                     <th className="text-start" scope="col">Off-chain account (IBAN)</th>
                     <th className="text-start" scope="col">Off-chain balance</th>
-                    <th className="text-start" scope="col">Total</th>
+                    <th className="text-end" scope="col">Total</th>
                   </tr>
               </thead>
               <tbody>
               {accountholders.map((accountholder)=> {
                 return <tr key={accountholder._id}>
                   <td className="text-start"><Link to={"/user-interface"} onClick={e => changeCurrentAccountholder(accountholder)}>{accountholder.firstName}</Link></td>
+                  <td className="text-start"><Link to={`/transactions/on-chain`} onClick={e => changeCurrentAccountholder(accountholder)}>{accountholder.onChainAccount.address}</Link></td>
                   <td className="text-start">
-                    {accountholder.onChainAccount.address}</td>
-                  <td className="text-start">EUR {accountholder.onChainAccount.balance}</td> 
-                  <td className="text-start">{accountholder.offChainAccount.address}</td> 
-                  <td className="text-start">EUR {accountholder.offChainAccount.balance}</td> 
-                  <td className="text-start">EUR {accountholder.offChainAccount.balance + accountholder.onChainAccount.balance}</td> 
+                    <div className="d-flex justify-content-between w-50 ms-2">
+                      <div> EUR</div>
+                      <div>{accountholder.onChainAccount.balance}</div>
+                    </div>
+                  </td> 
+                  <td className="text-start"><Link to={`/transactions/off-chain`} onClick={e => changeCurrentAccountholder(accountholder)}>{accountholder.offChainAccount.address}</Link></td> 
+                  <td className="text-start"> 
+                  <div className="d-flex justify-content-between w-50 ms-2">
+                    <div>EUR</div>
+                    <div>{accountholder.offChainAccount.balance}</div>
+                  </div>
+                  </td> 
+                  <td className="text-start"> 
+                  <div className="d-flex justify-content-between w-100 ms-2">
+                    <div>EUR</div>
+                    <div>{accountholder.offChainAccount.balance + accountholder.onChainAccount.balance}</div>
+                  </div>
+                  </td> 
                 </tr>
               })}
               </tbody>
@@ -109,7 +138,6 @@ function BankInterfacePage() {
         </div>
      </div>
     </div>
-      
   )
 }
 

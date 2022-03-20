@@ -30,7 +30,7 @@ function Navbar() {
                 <NavLink to="/login" className="mx-5">
                   Login
                 </NavLink>
-                <NavLink to="/signup" className="mx-5">
+                <NavLink to="/signup" className="NavLink mx-5">
                   Signup
                 </NavLink>
               </>

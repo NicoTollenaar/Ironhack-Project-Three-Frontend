@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
 import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
+import { TransactionContext } from "../context/transaction.context";
 import { providerUrl } from "./../utils/constants";
 
 function TransactionsPage() {
@@ -11,23 +12,23 @@ function TransactionsPage() {
   const { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
-  const [ transactions, setTransactions ] = useState([]);
-
+  const { transactions, addToTransactions } = useContext(TransactionContext);
+  const [ formattedTransactions, setFormattedTransactions ] = useState([]);
+  
   useEffect(() => {
     getTransactions()
-      .then(transactions => setTransactions(transactions))
+      .then((dbTransactions)=> formatTransactions(dbTransactions))
       .catch(err => console.log(err));
-  }, []);
+  }, [transactions]);
 
-  function formatTransactions(){
+  function formatTransactions(dbTransactions){
     const currentAccount = accountType === "on-chain" ? currentAccountholder.onChainAccount : currentAccountholder.offChainAccount;
 
     console.log("Transactions page, currentAccountholder: ", currentAccountholder);
     console.log("Transactions page, logging currentAccount and .address: ", currentAccount);
-    const formattedTransactions = transactions.map((transaction) => {
+    const preFormattedTransactions = dbTransactions.map((transaction) => {
       let contraAccountAddress = transaction.fromAccountId.address === currentAccount.address ? transaction.toAccountId.address : transaction.fromAccountId.address;
       console.log("Transactions page, logging contraAccountAddress: ", contraAccountAddress);
-
       let transferType = (contraAccountAddress === currentAccountholder.onChainAccount.address || contraAccountAddress === currentAccountholder.offChainAccount.address) ? "Internal" : "External";
       let signedAmount = currentAccount.address === transaction.fromAccountId.address ? transaction.amount * -1 : transaction.amount;
       let href = providerUrl === "http://localhost:7545" ? null : `https://rinkeby.etherscan.io/tx/${transaction.txHash}`;
@@ -40,19 +41,18 @@ function TransactionsPage() {
         txHash: transaction.txHash,
         href
         }
-     });
-     
-     formattedTransactions.sort((a, b) => {
-       if (a.createdAt > b.createdAt) {
-         return 1;
-     } else {
-       return -1;
-     }
-    });
-     return formattedTransactions;
+      });
+      preFormattedTransactions.sort((a, b) => {
+        if (a.createdAt > b.createdAt) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+      setFormattedTransactions(preFormattedTransactions);
   }
 
-  const formattedTransactions = formatTransactions();
+
   console.log("In transactions page, logging formattedTransactions: ", formattedTransactions);
   const currentBalance = accountType === "on-chain" ? currentAccountholder.onChainAccount.balance : currentAccountholder.offChainAccount.balance;
   const initialBalance = formattedTransactions.reduce((acc, curr)=> {
@@ -86,7 +86,7 @@ function TransactionsPage() {
         <div className="col-7 mt-4">
             <div className="m-3 mx-5">
               <div className="card-body">
-                <div className="d-flex flex-column align-items-start mx-5">
+                <div className="d-flex flex-column align-items-start mx-2">
                   <h5 className="text-align-start">
                     Account: {accountType === "on-chain" ? `${currentAccountholder.onChainAccount.address} (on-chain)` : `${currentAccountholder.offChainAccount.address} (off-chain)`}
                   </h5>
@@ -146,21 +146,21 @@ function TransactionsPage() {
                   </tr>
               </thead>
               <tbody>
-              {formattedTransactions.map((transaction, index)=> {
-                return <tr key={transaction._id}>
-                  <td className="text-start text-nowrap">{transaction.date}</td> 
-                  <td className="text-start">{transaction.contraAccountAddress}</td> 
-                  <td className="text-start">
-                    {(transaction.txHash.slice(0,2) === "0x" && providerUrl !== "http://localhost:7545") ? <a id="this" target="_blank" href= { transaction.href } > {transaction.txHash}</a> : `${transaction.txHash}`}
-                    </td>
-                  <td className="text-start">{transaction.transferType}</td>
-                  <td className="text-end d-flex justify-content-between">
-                    <div>EUR</div> 
-                    <div>
-                    {transaction.signedAmount}
-                    </div>
-                    </td>
-                </tr>
+              {formattedTransactions.map((tx)=> {
+                return (<tr key={tx._id}>
+                          <td className="text-start text-nowrap">{tx.date}</td> 
+                          <td className="text-start">{tx.contraAccountAddress}</td> 
+                          <td className="text-start">
+                            {(tx.txHash.slice(0,2) === "0x" && providerUrl !== "http://localhost:7545") ? <a id="this" target="_blank" href= { tx.href } > {tx.txHash}</a> : `${tx.txHash}`}
+                            </td>
+                          <td className="text-start">{tx.transferType}</td>
+                          <td className="text-end d-flex justify-content-between">
+                            <div>EUR</div> 
+                            <div>
+                            {tx.signedAmount}
+                            </div>
+                            </td>
+                    </tr>)
               })}
               </tbody>
             </table>
