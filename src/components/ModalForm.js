@@ -150,19 +150,21 @@ function ModalForm(props) {
         .connect(signer)
         .moveFundsOffChain(amountInCents);
       await tx.wait();
-      console.log("tx : ", tx);
+
+      console.log("In modalform just before calling balance of, logging signerAddress: ", signerAddress);
+      console.log("In modalform just before calling balance of, logging ETHAddressBank: ", ETHAddressBank);
 
       const balanceOfAccountholderInCents =
-        await chainAccountContract.balanceOf(signerAddress);
-      const balanceOfBankInCents = await chainAccountContract.balanceOf(
-        ETHAddressBank
-      );
+        await chainAccountContract.connect(signer).balanceOf(signerAddress);
+      // const balanceOfBankInCents = await chainAccountContract.connect(signer).balanceOf(
+      //   ETHAddressBank
+      // );
       const balanceOfAccountholder =
         balanceOfAccountholderInCents / 10 ** DECIMALS;
-      const balanceOfBank = balanceOfBankInCents / 10 ** DECIMALS;
+      // const balanceOfBank = balanceOfBankInCents / 10 ** DECIMALS;
 
       console.log("Balance of accountholder: ", balanceOfAccountholder);
-      console.log("Balance of bank: ", balanceOfBank);
+      // console.log("Balance of bank: ", balanceOfBank);
       setSuccessMessage(
         `Transaction successful - new OnChainBalance is ${balanceOfAccountholder}`
       );

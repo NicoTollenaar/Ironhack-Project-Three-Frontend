@@ -27,6 +27,10 @@ body {
   box-sizing: border-box;
 }
 
+#transaction-table {
+  font-size: 0.9em;
+}
+
 /* *,
 *:before,
 *:after {
