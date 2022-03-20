@@ -49,10 +49,6 @@ function UserInterfacePage() {
               onChainAccount: dbUpdatedFromAccount,
             };
             changeCurrentAccountholder(updatedCurrentAccountholder);
-            console.log("In UserInterfacePage, logging window.location.pathname: ", window.location.pathname);
-            if (window.location.pathname !== "/user-interface") {
-              navigate("/user-interface");
-            }
           } catch(err) {
             console.log("Data received is invalid json, logging received data (event.data): ", event.data);
           }

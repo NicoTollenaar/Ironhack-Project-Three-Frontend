@@ -5,7 +5,6 @@ import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 import { providerUrl } from "./../utils/constants";
 
-providerUrl = "abc";
 function TransactionsPage() {
   const backendUrl = useContext(BackendUrlContext);
   const { accountType } = useParams();
@@ -22,21 +21,27 @@ function TransactionsPage() {
 
   function formatTransactions(){
     const currentAccount = accountType === "on-chain" ? currentAccountholder.onChainAccount : currentAccountholder.offChainAccount;
-    const formattedTransactions = transactions.map((transaction, index) => {
-      let contraAccount = transaction.fromAccountId.address === currentAccount.address ? transaction.toAccountId.address : transaction.fromAccountId.address;
-      let transferType = (contraAccount === currentAccountholder.onChainAccount.address || contraAccount.address === currentAccountholder.offChainAccount.address) ? "Internal" : "External";
+
+    console.log("Transactions page, currentAccountholder: ", currentAccountholder);
+    console.log("Transactions page, logging currentAccount and .address: ", currentAccount);
+    const formattedTransactions = transactions.map((transaction) => {
+      let contraAccountAddress = transaction.fromAccountId.address === currentAccount.address ? transaction.toAccountId.address : transaction.fromAccountId.address;
+      console.log("Transactions page, logging contraAccountAddress: ", contraAccountAddress);
+
+      let transferType = (contraAccountAddress === currentAccountholder.onChainAccount.address || contraAccountAddress === currentAccountholder.offChainAccount.address) ? "Internal" : "External";
       let signedAmount = currentAccount.address === transaction.fromAccountId.address ? transaction.amount * -1 : transaction.amount;
-      let href = `https://rinkeby.etherscan.io/tx/${transaction.txHash}`;
+      let href = providerUrl === "http://localhost:7545" ? null : `https://rinkeby.etherscan.io/tx/${transaction.txHash}`;
       return {
         _id: transaction._id,
         date: transaction.createdAt,
         signedAmount,
-        contraAccount, 
+        contraAccountAddress, 
         transferType,
         txHash: transaction.txHash,
         href
         }
      });
+     
      formattedTransactions.sort((a, b) => {
        if (a.createdAt > b.createdAt) {
          return 1;
@@ -47,9 +52,8 @@ function TransactionsPage() {
      return formattedTransactions;
   }
 
-  console.log("In transactions page, logging current balance (depending on on or off chain): ", accountType === "on-chain" ? currentAccountholder.onChainAccount.balance : currentAccountholder.offChainAccount.balance)
-
   const formattedTransactions = formatTransactions();
+  console.log("In transactions page, logging formattedTransactions: ", formattedTransactions);
   const currentBalance = accountType === "on-chain" ? currentAccountholder.onChainAccount.balance : currentAccountholder.offChainAccount.balance;
   const initialBalance = formattedTransactions.reduce((acc, curr)=> {
                       return acc - curr.signedAmount;
@@ -145,7 +149,7 @@ function TransactionsPage() {
               {formattedTransactions.map((transaction, index)=> {
                 return <tr key={transaction._id}>
                   <td className="text-start text-nowrap">{transaction.date}</td> 
-                  <td className="text-start">{transaction.contraAccount}</td> 
+                  <td className="text-start">{transaction.contraAccountAddress}</td> 
                   <td className="text-start">
                     {(transaction.txHash.slice(0,2) === "0x" && providerUrl !== "http://localhost:7545") ? <a id="this" target="_blank" href= { transaction.href } > {transaction.txHash}</a> : `${transaction.txHash}`}
                     </td>
