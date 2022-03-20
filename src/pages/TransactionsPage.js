@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
 import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
+import { providerUrl } from "./../utils/constants";
 
-
+providerUrl = "abc";
 function TransactionsPage() {
   const backendUrl = useContext(BackendUrlContext);
   const { accountType } = useParams();
@@ -25,6 +26,7 @@ function TransactionsPage() {
       let contraAccount = transaction.fromAccountId.address === currentAccount.address ? transaction.toAccountId.address : transaction.fromAccountId.address;
       let transferType = (contraAccount === currentAccountholder.onChainAccount.address || contraAccount.address === currentAccountholder.offChainAccount.address) ? "Internal" : "External";
       let signedAmount = currentAccount.address === transaction.fromAccountId.address ? transaction.amount * -1 : transaction.amount;
+      let href = `https://rinkeby.etherscan.io/tx/${transaction.txHash}`;
       return {
         _id: transaction._id,
         date: transaction.createdAt,
@@ -32,6 +34,7 @@ function TransactionsPage() {
         contraAccount, 
         transferType,
         txHash: transaction.txHash,
+        href
         }
      });
      formattedTransactions.sort((a, b) => {
@@ -51,7 +54,6 @@ function TransactionsPage() {
   const initialBalance = formattedTransactions.reduce((acc, curr)=> {
                       return acc - curr.signedAmount;
                     }, accountType === "on-chain" ? currentAccountholder.onChainAccount.balance : currentAccountholder.offChainAccount.balance);
-  console.log("In transactions page, logging formattedTransactions: ", formattedTransactions);
 
   async function getTransactions() {
     const currentAccount = accountType === "on-chain" ? currentAccountholder.onChainAccount : currentAccountholder.offChainAccount;
@@ -137,7 +139,6 @@ function TransactionsPage() {
                     <th className="text-start" scope="col">Tx hash</th>
                     <th className="text-start" scope="col">Transfer</th>
                     <th className="text-end" scope="col">Amount</th>
-                    {/* <th className="text-start" scope="col">Balance</th> */}
                   </tr>
               </thead>
               <tbody>
@@ -146,7 +147,7 @@ function TransactionsPage() {
                   <td className="text-start text-nowrap">{transaction.date}</td> 
                   <td className="text-start">{transaction.contraAccount}</td> 
                   <td className="text-start">
-                    {transaction.txHash.slice(0,2) === "0x" ? <a id="this" target="_blank" href="https://rinkeby.etherscan.io/tx"> {transaction.txHash}</a> : `${transaction.txHash}`}
+                    {(transaction.txHash.slice(0,2) === "0x" && providerUrl !== "http://localhost:7545") ? <a id="this" target="_blank" href= { transaction.href } > {transaction.txHash}</a> : `${transaction.txHash}`}
                     </td>
                   <td className="text-start">{transaction.transferType}</td>
                   <td className="text-end d-flex justify-content-between">
