@@ -23,9 +23,17 @@ function CurrentAccountholderProviderWrapper(props) {
     setCurrentAccountholder(newAccountHolder);
   }
 
+  function updateCurrentAccountholder(key, value) {
+     const updatedCurrentAccountholder = {
+              ...currentAccountholder,
+              [`${key}`]: value,
+            };
+    setCurrentAccountholder(updatedCurrentAccountholder)
+  }
+
   return (
     <CurrentAccountholderContext.Provider
-      value={{ currentAccountholder, changeCurrentAccountholder }}
+      value={{ currentAccountholder, changeCurrentAccountholder, updateCurrentAccountholder }}
     >
       {props.children}
     </CurrentAccountholderContext.Provider>

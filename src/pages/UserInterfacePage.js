@@ -7,15 +7,15 @@ import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 import { TransactionContext } from "../context/transaction.context";
 import { AccountsContext } from "../context/account.context";
-import { wssBackendUrl } from "./../utils/constants";
+// import { wssBackendUrl } from "./../utils/constants";
 
 function UserInterfacePage() {
   const backendUrl = useContext(BackendUrlContext);
   const { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
-  const { transactions, addToTransactions } = useContext(TransactionContext);
-  const { accounts, updateAccounts } = useContext(AccountsContext);
+  // const { transactions, addToTransactions } = useContext(TransactionContext);
+  // const { accounts, updateAccounts } = useContext(AccountsContext);
 
   const [modalShow, setModalShow] = useState(false);
   const [moveFundsDirection, setMoveFundsDirection] = useState("");
@@ -29,60 +29,60 @@ function UserInterfacePage() {
     changeCurrentAccountholder(currentAccountholder);
   }, []);
 
-  useEffect(()=>{
-    function createWebSocketConnection(){
-      let socket = new WebSocket(wssBackendUrl);
-      socket.onopen = function(event) {
-        console.log("Websocket connection established, logging host and argument event: ", wssBackendUrl, event);
-      };
+  // useEffect(()=>{
+  //   function createWebSocketConnection(){
+  //     let socket = new WebSocket(wssBackendUrl);
+  //     socket.onopen = function(event) {
+  //       console.log("Websocket connection established, logging host and argument event: ", wssBackendUrl, event);
+  //     };
   
-      socket.onmessage = function(event) {
+  //     socket.onmessage = function(event) {
         
-        if (event.data.toString() === "ping") {
-          console.log(event.data);
-          socket.send("pong");
-        } else {
-          try {
-            const parsedData = JSON.parse(event.data);
+  //       if (event.data.toString() === "ping") {
+  //         console.log(event.data);
+  //         socket.send("pong");
+  //       } else {
+  //         try {
+  //           const parsedData = JSON.parse(event.data);
 
-            const { dbUpdatedFromAccount, dbNewTransaction, dbUpdatedRecipientAccount } = parsedData;
+  //           const { dbUpdatedFromAccount, dbNewTransaction, dbUpdatedRecipientAccount } = parsedData;
             
-            console.log("Websocket messaged received, logging received data (parsedData): ", parsedData);
+  //           console.log("Websocket messaged received, logging received data (parsedData): ", parsedData);
             
-            const updatedCurrentAccountholder = {
-              ...currentAccountholder,
-              onChainAccount: dbUpdatedFromAccount,
-            };
-            changeCurrentAccountholder(updatedCurrentAccountholder);
-            addToTransactions(dbNewTransaction);
-            updateAccounts(dbUpdatedFromAccount);
-            updateAccounts(dbUpdatedRecipientAccount);
-          } catch(err) {
-            console.log("Data received is invalid json, logging received data (event.data): ", event.data);
-          }
-        }
-      }
+  //           const updatedCurrentAccountholder = {
+  //             ...currentAccountholder,
+  //             onChainAccount: dbUpdatedFromAccount,
+  //           };
+  //           changeCurrentAccountholder(updatedCurrentAccountholder);
+  //           addToTransactions(dbNewTransaction);
+  //           updateAccounts(dbUpdatedFromAccount);
+  //           updateAccounts(dbUpdatedRecipientAccount);
+  //         } catch(err) {
+  //           console.log("Data received is invalid json, logging received data (event.data): ", event.data);
+  //         }
+  //       }
+  //     }
 
-      socket.onerror = event => {
-        socket.close();
-        console.log("A websocket error occurred, logging error: ", event);
-        setErrorMessage(`A websocket error occurred, logging error: ${event}`);
-      }
+  //     socket.onerror = event => {
+  //       socket.close();
+  //       console.log("A websocket error occurred, logging error: ", event);
+  //       setErrorMessage(`A websocket error occurred, logging error: ${event}`);
+  //     }
 
-      socket.onclose = function(event) {
-        if (event.wasClean) {
-          console.log(`Websocket connection closed cleanly, code=${event.code} reason=${event.reason}`);
-        } else {
-          console.log('Websocket connection closed abnormally, logging event:', event);
-          socket = null;
-          createWebSocketConnection();
-        }
-      };
-    };
+  //     socket.onclose = function(event) {
+  //       if (event.wasClean) {
+  //         console.log(`Websocket connection closed cleanly, code=${event.code} reason=${event.reason}`);
+  //       } else {
+  //         console.log('Websocket connection closed abnormally, logging event:', event);
+  //         socket = null;
+  //         createWebSocketConnection();
+  //       }
+  //     };
+  //   };
 
-    createWebSocketConnection();
+  //   createWebSocketConnection();
 
-  }, []);
+  // }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
