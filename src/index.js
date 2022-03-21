@@ -6,21 +6,24 @@ import { BackendUrlProviderWrapper } from "./context/backendUrl.context";
 import { CurrentAccountholderProviderWrapper } from "./context/currentAccountholder.context";
 import { AuthProviderWrapper } from "./context/auth.context";
 import { TransactionProviderWrapper } from "./context/transaction.context";
+import { AccountsProviderWrapper } from "./context/account.context";
 import { BrowserRouter as Router } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <TransactionProviderWrapper>
-      <CurrentAccountholderProviderWrapper>
-        <BackendUrlProviderWrapper>
-          <AuthProviderWrapper>
-            <App />
-          </AuthProviderWrapper>
-        </BackendUrlProviderWrapper>
-      </CurrentAccountholderProviderWrapper>
-      </TransactionProviderWrapper>
+      <AccountsProviderWrapper>
+        <TransactionProviderWrapper>
+          <CurrentAccountholderProviderWrapper>
+            <BackendUrlProviderWrapper>
+              <AuthProviderWrapper>
+                <App />
+              </AuthProviderWrapper>
+            </BackendUrlProviderWrapper>
+          </CurrentAccountholderProviderWrapper>
+        </TransactionProviderWrapper>
+      </AccountsProviderWrapper>
     </Router>
   </React.StrictMode>,
   document.getElementById("root")

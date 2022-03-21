@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BackendUrlContext } from "../context/backendUrl.context";
 import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
+import { AccountsContext } from "../context/account.context";
 
 
 function BankInterfacePage() {
@@ -10,13 +11,14 @@ function BankInterfacePage() {
   const { currentAccountholder, changeCurrentAccountholder } = useContext(
     CurrentAccountholderContext
   );
+  const { accounts, updateAccounts } = useContext(AccountsContext);
   const [ accountholders, setAccountholders ] = useState([]);
 
   useEffect(() => {
     getAccountholders()
       .then(accountholders => setAccountholders(accountholders))
       .catch(err => console.log(err));
-  }, []);
+  }, [accounts]);
 
   async function getAccountholders() {
     try {

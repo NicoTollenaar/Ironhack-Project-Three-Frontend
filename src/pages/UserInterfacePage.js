@@ -6,6 +6,7 @@ import MoveFundsModal from "../components/MoveFundsModal";
 import { useState, useContext, useEffect } from "react";
 import { CurrentAccountholderContext } from "../context/currentAccountholder.context";
 import { TransactionContext } from "../context/transaction.context";
+import { AccountsContext } from "../context/account.context";
 import { wssBackendUrl } from "./../utils/constants";
 
 function UserInterfacePage() {
@@ -14,6 +15,7 @@ function UserInterfacePage() {
     CurrentAccountholderContext
   );
   const { transactions, addToTransactions } = useContext(TransactionContext);
+  const { accounts, updateAccounts } = useContext(AccountsContext);
 
   const [modalShow, setModalShow] = useState(false);
   const [moveFundsDirection, setMoveFundsDirection] = useState("");
@@ -43,7 +45,7 @@ function UserInterfacePage() {
           try {
             const parsedData = JSON.parse(event.data);
 
-            const { dbUpdatedFromAccount, dbNewTransaction  } = parsedData;
+            const { dbUpdatedFromAccount, dbNewTransaction, dbUpdatedRecipientAccount } = parsedData;
             
             console.log("Websocket messaged received, logging received data (parsedData): ", parsedData);
             
@@ -53,6 +55,8 @@ function UserInterfacePage() {
             };
             changeCurrentAccountholder(updatedCurrentAccountholder);
             addToTransactions(dbNewTransaction);
+            updateAccounts(dbUpdatedFromAccount);
+            updateAccounts(dbUpdatedRecipientAccount);
           } catch(err) {
             console.log("Data received is invalid json, logging received data (event.data): ", event.data);
           }
